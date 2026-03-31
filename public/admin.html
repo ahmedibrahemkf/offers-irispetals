@@ -1,0 +1,2371 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Iris Petals Admin</title>
+<meta name="robots" content="noindex,nofollow" />
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Tajawal:wght@400;500;700;800&display=swap");
+
+:root {
+  --bg: #f6f3fa;
+  --surface: #ffffff;
+  --line: #e8e0ef;
+  --ink: #24202a;
+  --muted: #6f6778;
+  --brand: #7a3d89;
+  --ok: #1f8557;
+  --err: #b8324b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #f4edf9, transparent 220px), var(--bg);
+  font-family: "Tajawal", "Manrope", "Segoe UI", Tahoma, sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(122, 61, 137, 0.08);
+}
+
+.top {
+  margin-bottom: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.title h1 {
+  margin: 0;
+  font-size: clamp(23px, 3vw, 34px);
+}
+
+.title p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 13px;
+  cursor: pointer;
+  font-weight: 800;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main { background: linear-gradient(135deg, var(--brand), #6e2f80); color: #fff; }
+.soft { background: #f2e9f8; color: #5c2f70; }
+.danger { background: #fae8ec; color: #b8324b; }
+
+.msg {
+  min-block-size: 22px;
+  margin: 0 0 10px;
+  font-weight: 800;
+}
+
+.ok { color: var(--ok); }
+.err { color: var(--err); }
+
+.toast {
+  position: fixed;
+  inset-inline-start: 16px;
+  inset-block-end: 16px;
+  z-index: 1000;
+  background: #1f8557;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  font-weight: 800;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.err {
+  background: #b8324b;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 12px;
+  padding: 12px;
+}
+
+.nav-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.side-links {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.side-link {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 11px;
+  text-decoration: none;
+  color: var(--ink);
+  background: #fff;
+  font-weight: 700;
+}
+
+.side-link:hover {
+  background: #f3eaf9;
+  border-color: #dcc8ec;
+  color: #5e3072;
+}
+
+.side-link.active {
+  background: #efe2f8;
+  border-color: #d7bce8;
+  color: #5d2f71;
+}
+
+.admin-main > section {
+  margin-bottom: 12px;
+}
+
+.section-anchor {
+  scroll-margin-top: 14px;
+}
+
+.section-pane[hidden] {
+  display: none !important;
+}
+
+.stat {
+  padding: 12px;
+}
+
+.stat span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stat b {
+  font-size: clamp(24px, 2vw, 32px);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel {
+  padding: 13px;
+}
+
+.panel h2 {
+  margin: 0 0 9px;
+  font-size: 22px;
+}
+
+.panel h3 {
+  margin: 10px 0 8px;
+  font-size: 18px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.field {
+  margin-bottom: 8px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+
+textarea { resize: vertical; }
+
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.preview {
+  inline-size: 68px;
+  block-size: 68px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f5f1f9;
+}
+
+.table-wrap {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #f2ecf7;
+  text-align: right;
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.review { background: #eef2ff; color: #3730a3; }
+.processing { background: #fff7ed; color: #9a3412; }
+.delivered { background: #ecfdf3; color: #166534; }
+.cancelled { background: #fef2f2; color: #b91c1c; }
+.paid { background: #e8f8ef; color: #1f8557; }
+.unpaid { background: #faecef; color: #b8324b; }
+.partial { background: #fdf7e9; color: #9b7a20; }
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: end;
+  margin-bottom: 8px;
+}
+
+.toolbar .field {
+  margin: 0;
+  min-inline-size: 140px;
+  flex: 1;
+}
+
+.orders-toolbar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.orders-toolbar .field {
+  min-inline-size: 0;
+}
+
+.orders-toolbar .btn {
+  width: fit-content;
+}
+
+.inline {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.split-wrap {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.split-row {
+  display: grid;
+  grid-template-columns: 1fr 130px auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.split-total {
+  margin-top: 4px;
+  font-weight: 700;
+  color: #5e3072;
+}
+
+.split-total.err {
+  color: #b8324b;
+}
+
+.p-box {
+  border: 1px dashed #dac6eb;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #fbf8fe;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+.finance-alerts {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.alert-card {
+  border: 1px solid #f1d8a4;
+  background: #fff8e8;
+  color: #7c5f1d;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.alert-card.ok {
+  border-color: #cce8d8;
+  background: #eefaf3;
+  color: #1f6b45;
+}
+
+.sep {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px dashed #e8e0ef;
+}
+
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .side-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .side-link {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .row { grid-template-columns: 1fr; }
+  .split-row { grid-template-columns: 1fr; }
+  .side-links { grid-template-columns: 1fr; }
+  .panel { padding: 11px; }
+  .btn { width: 100%; }
+  .inline .btn { width: auto; }
+  #sec-orders thead { display: none; }
+  #sec-orders table,
+  #sec-orders tbody,
+  #sec-orders tr,
+  #sec-orders td { display: block; width: 100%; }
+  #sec-orders tr {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #fff;
+  }
+  #sec-orders td {
+    border-bottom: 1px dashed #eee7f4;
+    padding: 8px 0;
+  }
+  #sec-orders td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  #sec-orders td:last-child { border-bottom: 0; }
+  .orders-toolbar .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="card top">
+    <div class="title">
+      <h1>Iris Petals Dashboard</h1>
+      <p>إدارة كاملة للصفحة والطلبات والتحصيل والمصروفات</p>
+    </div>
+    <div class="btns">
+      <a class="btn soft" href="index.html" target="_blank" rel="noopener">فتح صفحة الطلب</a>
+      <button type="button" id="saveSettingsTop" class="btn main">حفظ كل الإعدادات</button>
+      <button type="button" id="resetDefaults" class="btn danger">إرجاع الإفتراضي</button>
+    </div>
+  </section>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="workspace">
+    <aside class="card sidebar">
+      <h3 class="nav-title">أقسام الداشبورد</h3>
+      <div class="side-links">
+        <a class="side-link" data-target="sec-orders" href="#sec-orders">إدارة الطلبات</a>
+        <a class="side-link" data-target="sec-finance" href="#sec-finance">المالية والعملاء</a>
+        <a class="side-link" data-target="sec-products" href="#sec-products">المنتجات والأسعار</a>
+        <a class="side-link" data-target="sec-shipping" href="#sec-shipping">الألوان والشحن</a>
+        <a class="side-link" data-target="sec-brand" href="#sec-brand">البراند والنصوص</a>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+  <section id="sec-brand" class="grid-2 section-anchor section-pane">
+    <article class="card panel">
+      <h2>البراند والنصوص</h2>
+
+      <div class="row">
+        <div class="field">
+          <label for="brandName">اسم البراند</label>
+          <input id="brandName" class="input" type="text" />
+        </div>
+        <div class="field">
+          <label for="waOrder">رقم واتساب استقبال الطلبات</label>
+          <input id="waOrder" class="input" type="text" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>لوجو (URL)</label>
+          <input id="logoUrl" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px">
+            <input id="logoFile" class="input" type="file" accept="image/*" />
+            <img id="logoPreview" class="preview" alt="logo" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Favicon المتصفح (URL)</label>
+          <input id="favUrl" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px">
+            <input id="favFile" class="input" type="file" accept="image/*" />
+            <img id="favPreview" class="preview" alt="favicon" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>صورة التوصيل السريع (URL)</label>
+          <input id="fastUrl" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px">
+            <input id="fastFile" class="input" type="file" accept="image/*" />
+            <img id="fastPreview" class="preview" alt="fast" />
+          </div>
+        </div>
+        <div class="field">
+          <label>أيقونة الدفع (URL)</label>
+          <input id="payIconUrl" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px">
+            <input id="payIconFile" class="input" type="file" accept="image/*" />
+            <img id="payIconPreview" class="preview" alt="pay icon" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field"><label>عنوان الهيرو AR</label><textarea id="heroAr" rows="2"></textarea></div>
+        <div class="field"><label>Hero Title EN</label><textarea id="heroEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>سطر العرض الدعائي AR</label><textarea id="promoAr" rows="2"></textarea></div>
+        <div class="field"><label>Promo Offer EN</label><textarea id="promoEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>نص التوصيل AR</label><input id="fastAr" class="input" type="text" /></div>
+        <div class="field"><label>Fast Text EN</label><input id="fastEn" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>نسبة الخصم (%) المستخدمة في السعر قبل/بعد الخصم</label>
+          <input id="discountPercent" class="input" type="number" min="0" max="95" step="1" />
+        </div>
+        <div class="field">
+          <label>ملاحظة</label>
+          <div class="small">السعر قبل الخصم = سعر البيع ÷ (1 - نسبة الخصم). مثال: 50% يعني السعر قبل الخصم ضعف سعر البيع.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>عنوان القسم AR</label><textarea id="sectionAr" rows="2"></textarea></div>
+        <div class="field"><label>Section Title EN</label><textarea id="sectionEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>التوصية الإضافية AR</label><textarea id="recommendAr" rows="2"></textarea></div>
+        <div class="field"><label>Recommendation EN</label><textarea id="recommendEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>زر واتساب العائم AR</label><input id="waCtaAr" class="input" type="text" /></div>
+        <div class="field"><label>Floating WA EN</label><input id="waCtaEn" class="input" type="text" /></div>
+      </div>
+    </article>
+
+    <article class="card panel">
+      <h2>الدفع والتحصيل العام</h2>
+      <div class="row">
+        <div class="field"><label>رقم إنستا باي</label><input id="instaNumber" class="input" type="text" /></div>
+        <div class="field"><label>رقم المحفظة الإلكترونية</label><input id="walletNumber" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>اسم الحساب</label><input id="accountName" class="input" type="text" /></div>
+        <div class="field"><label>Visa AR</label><input id="visaAr" class="input" type="text" /></div>
+      </div>
+      <div class="field"><label>Visa EN</label><input id="visaEn" class="input" type="text" /></div>
+      <div class="row">
+        <div class="field"><label>تنويه التوصيل AR</label><textarea id="deliveryNoticeAr" rows="2"></textarea></div>
+        <div class="field"><label>Delivery Notice EN</label><textarea id="deliveryNoticeEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>تنويه اللون المصري AR</label><textarea id="localOnlyAr" rows="2"></textarea></div>
+        <div class="field"><label>Local Color Notice EN</label><textarea id="localOnlyEn" rows="2"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>تنويه العربون AR</label><textarea id="depositAr" rows="2"></textarea></div>
+        <div class="field"><label>Deposit Notice EN</label><textarea id="depositEn" rows="2"></textarea></div>
+      </div>
+    </article>
+  </section>
+
+  <section id="sec-products" class="card panel section-anchor section-pane">
+    <h2>إعدادات المنتجات (كل منتج 3 صور + الأسعار)</h2>
+
+    <div class="p-box" id="boxImported">
+      <h3>المنتج الهولندي</h3>
+      <div class="row">
+        <div class="field"><label>العنوان AR</label><input id="impTitleAr" class="input" type="text" /></div>
+        <div class="field"><label>Title EN</label><input id="impTitleEn" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>سطر السعر AR</label><input id="impLineAr" class="input" type="text" /></div>
+        <div class="field"><label>Price Line EN</label><input id="impLineEn" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>الوصف AR</label><input id="impSubAr" class="input" type="text" /></div>
+        <div class="field"><label>Sub EN</label><input id="impSubEn" class="input" type="text" /></div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>الصورة 1 (كبيرة)</label>
+          <input id="impImg1" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px"><input id="impImg1File" class="input" type="file" accept="image/*" /><img id="impImg1Preview" class="preview" alt="imp1" /></div>
+        </div>
+        <div class="field">
+          <label>الصورة 2</label>
+          <input id="impImg2" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px"><input id="impImg2File" class="input" type="file" accept="image/*" /><img id="impImg2Preview" class="preview" alt="imp2" /></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>الصورة 3</label>
+        <input id="impImg3" class="input" type="text" placeholder="https://..." />
+        <div class="inline" style="margin-top:6px"><input id="impImg3File" class="input" type="file" accept="image/*" /><img id="impImg3Preview" class="preview" alt="imp3" /></div>
+      </div>
+
+      <div class="inline" style="margin-bottom:6px">
+        <button id="addImpPrice" type="button" class="btn soft">إضافة كمية/سعر للهولندي</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الكمية</th><th>السعر</th><th>حذف</th></tr></thead>
+          <tbody id="impPricingBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="p-box" id="boxLocal">
+      <h3>المنتج المصري</h3>
+      <div class="row">
+        <div class="field"><label>العنوان AR</label><input id="locTitleAr" class="input" type="text" /></div>
+        <div class="field"><label>Title EN</label><input id="locTitleEn" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>سطر السعر AR</label><input id="locLineAr" class="input" type="text" /></div>
+        <div class="field"><label>Price Line EN</label><input id="locLineEn" class="input" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>الوصف AR</label><input id="locSubAr" class="input" type="text" /></div>
+        <div class="field"><label>Sub EN</label><input id="locSubEn" class="input" type="text" /></div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>الصورة 1 (كبيرة)</label>
+          <input id="locImg1" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px"><input id="locImg1File" class="input" type="file" accept="image/*" /><img id="locImg1Preview" class="preview" alt="loc1" /></div>
+        </div>
+        <div class="field">
+          <label>الصورة 2</label>
+          <input id="locImg2" class="input" type="text" placeholder="https://..." />
+          <div class="inline" style="margin-top:6px"><input id="locImg2File" class="input" type="file" accept="image/*" /><img id="locImg2Preview" class="preview" alt="loc2" /></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>الصورة 3</label>
+        <input id="locImg3" class="input" type="text" placeholder="https://..." />
+        <div class="inline" style="margin-top:6px"><input id="locImg3File" class="input" type="file" accept="image/*" /><img id="locImg3Preview" class="preview" alt="loc3" /></div>
+      </div>
+
+      <div class="inline" style="margin-bottom:6px">
+        <button id="addLocPrice" type="button" class="btn soft">إضافة كمية/سعر للمصري</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الكمية</th><th>السعر</th><th>حذف</th></tr></thead>
+          <tbody id="locPricingBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec-shipping" class="grid-2 section-anchor section-pane">
+    <article class="card panel">
+      <h2>ألوان الورد المستورد + لون المصري</h2>
+      <div class="inline" style="margin-bottom:8px">
+        <input id="importColorAr" class="input" type="text" placeholder="AR" />
+        <input id="importColorEn" class="input" type="text" placeholder="EN" />
+        <button id="addImportColor" type="button" class="btn soft">إضافة لون</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>AR</th><th>EN</th><th>حذف</th></tr></thead>
+          <tbody id="importColorsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label>اللون المصري AR</label><input id="localColorAr" class="input" type="text" /></div>
+        <div class="field"><label>Local Color EN</label><input id="localColorEn" class="input" type="text" /></div>
+      </div>
+    </article>
+
+    <article class="card panel">
+      <h2>المحافظات وأسعار الشحن + مواعيد التوصيل</h2>
+      <div class="inline" style="margin-bottom:8px">
+        <input id="govAr" class="input" type="text" placeholder="المحافظة AR" />
+        <input id="govEn" class="input" type="text" placeholder="Governorate EN" />
+        <input id="govFee" class="input" type="number" min="0" step="0.01" placeholder="رسوم الشحن" />
+        <button id="addGov" type="button" class="btn soft">إضافة محافظة</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>AR</th><th>EN</th><th>رسوم الشحن</th><th>حذف</th></tr></thead>
+          <tbody id="govBody"></tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top:12px">مواعيد التوصيل</h3>
+      <div class="inline" style="margin-bottom:8px">
+        <input id="slotAr" class="input" type="text" placeholder="AR" />
+        <input id="slotEn" class="input" type="text" placeholder="EN" />
+        <button id="addSlot" type="button" class="btn soft">إضافة موعد</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>AR</th><th>EN</th><th>حذف</th></tr></thead>
+          <tbody id="slotBody"></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section id="sec-orders" class="card panel section-anchor section-pane">
+    <h2>إدارة الطلبات</h2>
+    <div class="toolbar orders-toolbar">
+      <div class="field"><label>من تاريخ</label><input id="fFrom" class="input" type="date" /></div>
+      <div class="field"><label>إلى تاريخ</label><input id="fTo" class="input" type="date" /></div>
+      <div class="field"><label>حالة الطلب</label><select id="fStatus" class="input"><option value="all">كل الحالات</option><option value="review">مراجعة</option><option value="processing">جاري التجهيز</option><option value="delivered">تم التسليم</option><option value="cancelled">ملغي</option></select></div>
+      <div class="field"><label>حالة الدفع</label><select id="fPayment" class="input"><option value="all">كل الحالات</option><option value="unpaid">غير مدفوع</option><option value="partial">دفع جزئي</option><option value="paid">مدفوع</option></select></div>
+      <div class="field"><label>بحث</label><input id="fSearch" class="input" type="text" placeholder="اسم / هاتف" /></div>
+      <button id="exportOrders" type="button" class="btn soft">تصدير CSV</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>رقم/تاريخ</th>
+            <th>العميل</th>
+            <th>الطلب</th>
+            <th>المالي</th>
+            <th>الحالات</th>
+            <th>ملاحظات</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sec-finance" class="grid-2 section-anchor section-pane">
+    <div class="stats full-span">
+      <article class="card stat"><span>إجمالي الطلبات</span><b id="sTotalOrders">0</b></article>
+      <article class="card stat"><span>إجمالي المبيعات (تم التسليم)</span><b id="sTotalSales">0</b></article>
+      <article class="card stat"><span>المحصّل فعليًا</span><b id="sCollected">0</b></article>
+      <article class="card stat"><span>تحصيلات معلقة</span><b id="sPending">0</b></article>
+      <article class="card stat"><span>إجمالي المصروفات</span><b id="sExpenses">0</b></article>
+      <article class="card stat"><span>صافي الربح النقدي</span><b id="sNet">0</b></article>
+    </div>
+
+    <div id="financeAlerts" class="finance-alerts full-span"></div>
+
+    <article class="card panel">
+      <h2>المصروفات والتكاليف</h2>
+      <div class="row">
+        <div class="field"><label>التاريخ</label><input id="expenseDate" class="input" type="date" /></div>
+        <div class="field"><label>النوع</label><input id="expenseType" class="input" type="text" placeholder="مثال: خامات / نقل" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>المبلغ</label><input id="expenseAmount" class="input" type="number" min="0" step="0.01" /></div>
+        <div class="field"><label>ملاحظة</label><input id="expenseNote" class="input" type="text" placeholder="اختياري" /></div>
+      </div>
+      <button id="addExpense" type="button" class="btn soft">إضافة مصروف</button>
+
+      <div class="table-wrap" style="margin-top:8px">
+        <table>
+          <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظة</th><th>حذف</th></tr></thead>
+          <tbody id="expensesBody"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="card panel">
+      <h2>بيانات العملاء</h2>
+      <p class="small">إجمالي الشراء محسوب من الطلبات التي حالتها تم التسليم.</p>
+      <button id="exportCustomers" type="button" class="btn soft" style="margin-bottom:8px">تصدير بيانات العملاء</button>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الاسم</th><th>الموبايل</th><th>عدد الطلبات</th><th>إجمالي الشراء</th><th>آخر طلب</th><th>عنوان آخر طلب</th></tr></thead>
+          <tbody id="customersBody"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="card panel full-span">
+      <h2>إدارة التحصيل</h2>
+      <h3>أسماء التحصيل</h3>
+      <div class="inline" style="margin-bottom:8px">
+        <input id="collectorName" class="input" type="text" placeholder="اسم جديد" />
+        <button id="addCollector" class="btn soft" type="button">إضافة اسم</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>الاسم</th><th>حذف</th></tr></thead>
+          <tbody id="collectorsBody"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="card panel full-span">
+      <h2>ملخص التحصيل</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>اسم المحصل</th><th>قيمة التحصيل مع المحصل</th><th>المحصّل فعليًا</th><th>المتبقي</th></tr></thead>
+          <tbody id="collectorSummaryBody"></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <section class="card panel" style="margin-bottom:14px">
+    <div class="btns">
+      <button type="button" id="saveSettingsBottom" class="btn main">حفظ كل الإعدادات</button>
+      <a class="btn soft" href="index.html" target="_blank" rel="noopener">معاينة صفحة العميل</a>
+    </div>
+  </section>
+    </main>
+  </div>
+</div>
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="app-bridge.js"></script>
+<script>
+(() => {
+  const KEYS = {
+    settings: "irispetals_settings_v4",
+    orders: "irispetals_orders_v4",
+    expenses: "irispetals_expenses_v4"
+  };
+
+  const STATUS_LABELS = { review: "مراجعة", processing: "جاري التجهيز", delivered: "تم التسليم", cancelled: "ملغي" };
+  const PAY_LABELS = { unpaid: "غير مدفوع", partial: "دفع جزئي", paid: "مدفوع" };
+
+  const DEF = {
+    brandName: "irispetals",
+    discountPercent: 50,
+    logo: "",
+    favicon: "",
+    fastImage: "",
+    texts: {
+      hero: { ar: "وردك في دقائق — من عندنا لبابك مباشرة", en: "Your flowers in minutes — from us to your doorstep" },
+      promo: { ar: "الحق دلوقتي عرض ال 100 ورده رجع وبخصم 50%", en: "Hurry up, the 100-rose offer is back with 50% off" },
+      fast: { ar: "اسرع توصيل في مصر", en: "Fastest delivery in Egypt" },
+      section: { ar: "البوكيه الصح بيتكلم عنك — اختار اللي يعبر", en: "The right bouquet speaks for you — choose what expresses you" },
+      recommendation: { ar: "+٥٠٠ طلب تم التوصيل · تقييم ⭐ ٤.٩ · رد خلال دقيقتين", en: "+500 delivered orders · ⭐ 4.9 rating · reply within 2 minutes" },
+      waCta: { ar: "اطلب دلوقتي", en: "Order Now" },
+      orderTitle: { ar: "إكمال الطلب", en: "Complete Your Order" },
+      deliveryNotice: { ar: "التوصيل يتم بسيارات مخصصة وليس من خلال شركات شحن للحفاظ على جودة البوكيهات الطبيعية.", en: "Delivery is handled by dedicated vehicles, not courier companies, to protect natural bouquet quality." },
+      localOnly: { ar: "الورد المصري متاح منه اللون الاحمر فقط.", en: "Egyptian flowers are currently available in red only." },
+      depositNotice: { ar: "تأكيد الحجز يتم بعربون عبر إنستا باي أو المحافظ الإلكترونية، ومتاح أيضًا الدفع بالفيزا.", en: "Booking confirmation requires a deposit via InstaPay or mobile wallet, and Visa payment is available." }
+    },
+    whatsappOrder: "01055835754",
+    payment: {
+      instaNumber: "01003653888",
+      walletNumber: "01003225229",
+      accountName: "احمد ابراهيم",
+      visaText: { ar: "متاح الدفع بالفيزا", en: "Visa payment available" },
+      icon: ""
+    },
+    importedColors: [
+      { ar: "أبيض", en: "White" },
+      { ar: "روز", en: "Rose" },
+      { ar: "أصفر", en: "Yellow" },
+      { ar: "بنفسجي فاتح", en: "Light Violet" }
+    ],
+    localColor: { ar: "أحمر", en: "Red" },
+    governorates: [
+      { key: "cairo", ar: "القاهرة", en: "Cairo", fee: 150 },
+      { key: "giza", ar: "الجيزة", en: "Giza", fee: 200 }
+    ],
+    collectors: ["احمد ابراهيم"],
+    deliveryWindows: [
+      { ar: "10:00 ص - 01:00 م", en: "10:00 AM - 01:00 PM" },
+      { ar: "01:00 م - 04:00 م", en: "01:00 PM - 04:00 PM" },
+      { ar: "04:00 م - 07:00 م", en: "04:00 PM - 07:00 PM" },
+      { ar: "07:00 م - 10:00 م", en: "07:00 PM - 10:00 PM" }
+    ],
+    products: [
+      {
+        id: "imported",
+        type: "imported",
+        freeShipping: true,
+        title: { ar: "بوكيه هولندي فاخر — الأكثر طلباً", en: "Premium Dutch Bouquet — Most Requested" },
+        line: { ar: "يبدأ من 2750 جنيه — توصيل مجاني لباب البيت", en: "Starts from 2750 EGP — Free home delivery" },
+        sub: { ar: "اختاره وسيب الباقي علينا", en: "Choose it and leave the rest to us" },
+        images: ["", "", ""],
+        pricing: [
+          { qty: 200, price: 6500 },
+          { qty: 150, price: 5000 },
+          { qty: 100, price: 3800 },
+          { qty: 50, price: 2750 }
+        ]
+      },
+      {
+        id: "local",
+        type: "local",
+        freeShipping: false,
+        title: { ar: "بوكيه مصري طازج — قطف اليوم", en: "Fresh Egyptian Bouquet — Today Pickup" },
+        line: { ar: "يبدأ من ١٢٠٠ جنيه — شحن اقتصادي", en: "Starts from 1200 EGP — Economy shipping" },
+        sub: { ar: "اطلب دلوقتي — السعر مش هايتكرر", en: "Order now — this price will not repeat" },
+        images: ["", "", ""],
+        pricing: [
+          { qty: 200, price: 2900 },
+          { qty: 150, price: 2300 },
+          { qty: 100, price: 1700 },
+          { qty: 50, price: 1200 }
+        ]
+      }
+    ]
+  };
+
+  const R = {
+    msg: q("#msg"),
+    sTotalOrders: q("#sTotalOrders"),
+    sTotalSales: q("#sTotalSales"),
+    sCollected: q("#sCollected"),
+    sPending: q("#sPending"),
+    sExpenses: q("#sExpenses"),
+    sNet: q("#sNet"),
+    financeAlerts: q("#financeAlerts"),
+
+    saveSettingsTop: q("#saveSettingsTop"),
+    saveSettingsBottom: q("#saveSettingsBottom"),
+    resetDefaults: q("#resetDefaults"),
+
+    brandName: q("#brandName"),
+    waOrder: q("#waOrder"),
+
+    logoUrl: q("#logoUrl"),
+    logoFile: q("#logoFile"),
+    logoPreview: q("#logoPreview"),
+
+    favUrl: q("#favUrl"),
+    favFile: q("#favFile"),
+    favPreview: q("#favPreview"),
+
+    fastUrl: q("#fastUrl"),
+    fastFile: q("#fastFile"),
+    fastPreview: q("#fastPreview"),
+
+    payIconUrl: q("#payIconUrl"),
+    payIconFile: q("#payIconFile"),
+    payIconPreview: q("#payIconPreview"),
+
+    heroAr: q("#heroAr"),
+    heroEn: q("#heroEn"),
+    promoAr: q("#promoAr"),
+    promoEn: q("#promoEn"),
+    fastAr: q("#fastAr"),
+    fastEn: q("#fastEn"),
+    discountPercent: q("#discountPercent"),
+    sectionAr: q("#sectionAr"),
+    sectionEn: q("#sectionEn"),
+    recommendAr: q("#recommendAr"),
+    recommendEn: q("#recommendEn"),
+    waCtaAr: q("#waCtaAr"),
+    waCtaEn: q("#waCtaEn"),
+
+    instaNumber: q("#instaNumber"),
+    walletNumber: q("#walletNumber"),
+    accountName: q("#accountName"),
+    visaAr: q("#visaAr"),
+    visaEn: q("#visaEn"),
+    deliveryNoticeAr: q("#deliveryNoticeAr"),
+    deliveryNoticeEn: q("#deliveryNoticeEn"),
+    localOnlyAr: q("#localOnlyAr"),
+    localOnlyEn: q("#localOnlyEn"),
+    depositAr: q("#depositAr"),
+    depositEn: q("#depositEn"),
+
+    collectorName: q("#collectorName"),
+    addCollector: q("#addCollector"),
+    collectorsBody: q("#collectorsBody"),
+    collectorSummaryBody: q("#collectorSummaryBody"),
+
+    impTitleAr: q("#impTitleAr"),
+    impTitleEn: q("#impTitleEn"),
+    impLineAr: q("#impLineAr"),
+    impLineEn: q("#impLineEn"),
+    impSubAr: q("#impSubAr"),
+    impSubEn: q("#impSubEn"),
+    impImg1: q("#impImg1"),
+    impImg1File: q("#impImg1File"),
+    impImg1Preview: q("#impImg1Preview"),
+    impImg2: q("#impImg2"),
+    impImg2File: q("#impImg2File"),
+    impImg2Preview: q("#impImg2Preview"),
+    impImg3: q("#impImg3"),
+    impImg3File: q("#impImg3File"),
+    impImg3Preview: q("#impImg3Preview"),
+    addImpPrice: q("#addImpPrice"),
+    impPricingBody: q("#impPricingBody"),
+
+    locTitleAr: q("#locTitleAr"),
+    locTitleEn: q("#locTitleEn"),
+    locLineAr: q("#locLineAr"),
+    locLineEn: q("#locLineEn"),
+    locSubAr: q("#locSubAr"),
+    locSubEn: q("#locSubEn"),
+    locImg1: q("#locImg1"),
+    locImg1File: q("#locImg1File"),
+    locImg1Preview: q("#locImg1Preview"),
+    locImg2: q("#locImg2"),
+    locImg2File: q("#locImg2File"),
+    locImg2Preview: q("#locImg2Preview"),
+    locImg3: q("#locImg3"),
+    locImg3File: q("#locImg3File"),
+    locImg3Preview: q("#locImg3Preview"),
+    addLocPrice: q("#addLocPrice"),
+    locPricingBody: q("#locPricingBody"),
+
+    importColorAr: q("#importColorAr"),
+    importColorEn: q("#importColorEn"),
+    addImportColor: q("#addImportColor"),
+    importColorsBody: q("#importColorsBody"),
+    localColorAr: q("#localColorAr"),
+    localColorEn: q("#localColorEn"),
+
+    govAr: q("#govAr"),
+    govEn: q("#govEn"),
+    govFee: q("#govFee"),
+    addGov: q("#addGov"),
+    govBody: q("#govBody"),
+
+    slotAr: q("#slotAr"),
+    slotEn: q("#slotEn"),
+    addSlot: q("#addSlot"),
+    slotBody: q("#slotBody"),
+
+    fFrom: q("#fFrom"),
+    fTo: q("#fTo"),
+    fStatus: q("#fStatus"),
+    fPayment: q("#fPayment"),
+    fSearch: q("#fSearch"),
+    exportOrders: q("#exportOrders"),
+    ordersBody: q("#ordersBody"),
+
+    expenseDate: q("#expenseDate"),
+    expenseType: q("#expenseType"),
+    expenseAmount: q("#expenseAmount"),
+    expenseNote: q("#expenseNote"),
+    addExpense: q("#addExpense"),
+    expensesBody: q("#expensesBody"),
+
+    exportCustomers: q("#exportCustomers"),
+    customersBody: q("#customersBody"),
+
+    navLinks: Array.from(document.querySelectorAll(".side-link[data-target]")),
+    sectionPanes: Array.from(document.querySelectorAll(".section-pane")),
+    toast: q("#toast")
+  };
+
+  const DB = window.IPDB || null;
+
+  let settings = normalizeSettings(readJSON(KEYS.settings, DEF));
+  let orders = normalizeOrders(readJSON(KEYS.orders, []));
+  let expenses = readJSON(KEYS.expenses, []);
+  let toastTimer = null;
+
+  init();
+
+  async function init() {
+    bindCoreEvents();
+    bindUploaders();
+    bindSectionNav();
+    await hydrateFromRemote();
+    renderSettingsToForm();
+    renderAll();
+    openSection((location.hash || "").replace("#", "") || "sec-orders");
+
+    R.expenseDate.value = new Date().toISOString().slice(0, 10);
+    if (!DB || !DB.isReady()) {
+      err("تعذر الاتصال بقاعدة البيانات على السيرفر. راجع إعدادات Laravel و MySQL.");
+    }
+  }
+
+  async function hydrateFromRemote() {
+    if (!DB || !DB.isReady()) return;
+    try {
+      const [remoteSettings, remoteOrders, remoteExpenses] = await Promise.all([
+        DB.loadSettings(DEF),
+        DB.listOrders(),
+        DB.listExpenses()
+      ]);
+
+      settings = normalizeSettings(remoteSettings || DEF);
+      orders = normalizeOrders(Array.isArray(remoteOrders) ? remoteOrders : []);
+      expenses = Array.isArray(remoteExpenses) ? remoteExpenses : [];
+      persistLocalCache();
+    } catch {
+      err("تعذر تحميل البيانات من قاعدة البيانات. جاري استخدام النسخة المحلية.");
+    }
+  }
+
+  function bindSectionNav() {
+    R.navLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const id = link.dataset.target || "sec-orders";
+        openSection(id);
+      });
+    });
+  }
+
+  function openSection(id) {
+    const activeId = document.getElementById(id) ? id : "sec-orders";
+    R.sectionPanes.forEach((sec) => {
+      sec.hidden = sec.id !== activeId;
+    });
+    R.navLinks.forEach((link) => {
+      link.classList.toggle("active", link.dataset.target === activeId);
+    });
+    history.replaceState(null, "", `#${activeId}`);
+  }
+
+  function bindCoreEvents() {
+    R.saveSettingsTop.addEventListener("click", saveSettingsFromForm);
+    R.saveSettingsBottom.addEventListener("click", saveSettingsFromForm);
+
+    R.resetDefaults.addEventListener("click", async () => {
+      if (!confirm("تأكيد إرجاع كل الإعدادات للوضع الإفتراضي؟")) return;
+      settings = normalizeSettings(structuredCloneSafe(DEF));
+      persistLocalCache();
+      if (DB && DB.isReady()) {
+        await DB.saveSettings(settings);
+      }
+      renderSettingsToForm();
+      renderAll();
+      ok("تم إرجاع الإعدادات الافتراضية.");
+    });
+
+    R.addCollector.addEventListener("click", () => {
+      const name = (R.collectorName.value || "").trim();
+      if (!name) return;
+      if (!settings.collectors.includes(name)) settings.collectors.push(name);
+      R.collectorName.value = "";
+      renderCollectors();
+      renderOrders();
+      renderCollectorSummary();
+    });
+
+    R.collectorsBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-collector]");
+      if (!btn) return;
+      const idx = Number(btn.dataset.delCollector);
+      settings.collectors.splice(idx, 1);
+      renderCollectors();
+      renderOrders();
+      renderCollectorSummary();
+    });
+
+    R.addImportColor.addEventListener("click", () => {
+      const ar = (R.importColorAr.value || "").trim();
+      const en = (R.importColorEn.value || "").trim();
+      if (!ar && !en) return;
+      settings.importedColors.push({ ar: ar || en, en: en || ar });
+      R.importColorAr.value = "";
+      R.importColorEn.value = "";
+      renderImportColors();
+    });
+
+    R.importColorsBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-color]");
+      if (!btn) return;
+      settings.importedColors.splice(Number(btn.dataset.delColor), 1);
+      renderImportColors();
+    });
+
+    R.addGov.addEventListener("click", () => {
+      const ar = (R.govAr.value || "").trim();
+      const en = (R.govEn.value || "").trim();
+      const fee = Number(R.govFee.value || 0);
+      if (!ar && !en) return;
+      settings.governorates.push({
+        key: slug(ar || en || `gov-${settings.governorates.length + 1}`),
+        ar: ar || en,
+        en: en || ar,
+        fee: fee
+      });
+      R.govAr.value = "";
+      R.govEn.value = "";
+      R.govFee.value = "";
+      renderGovernorates();
+    });
+
+    R.govBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-gov]");
+      if (!btn) return;
+      settings.governorates.splice(Number(btn.dataset.delGov), 1);
+      renderGovernorates();
+    });
+
+    R.addSlot.addEventListener("click", () => {
+      const ar = (R.slotAr.value || "").trim();
+      const en = (R.slotEn.value || "").trim();
+      if (!ar && !en) return;
+      settings.deliveryWindows.push({ ar: ar || en, en: en || ar });
+      R.slotAr.value = "";
+      R.slotEn.value = "";
+      renderSlots();
+    });
+
+    R.slotBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-slot]");
+      if (!btn) return;
+      settings.deliveryWindows.splice(Number(btn.dataset.delSlot), 1);
+      renderSlots();
+    });
+
+    R.addImpPrice.addEventListener("click", () => {
+      const p = getProduct("imported");
+      p.pricing.push({ qty: 0, price: 0 });
+      renderPricingTable("imported");
+    });
+
+    R.addLocPrice.addEventListener("click", () => {
+      const p = getProduct("local");
+      p.pricing.push({ qty: 0, price: 0 });
+      renderPricingTable("local");
+    });
+
+    R.impPricingBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-price]");
+      if (!btn) return;
+      getProduct("imported").pricing.splice(Number(btn.dataset.delPrice), 1);
+      renderPricingTable("imported");
+    });
+
+    R.locPricingBody.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-del-price]");
+      if (!btn) return;
+      getProduct("local").pricing.splice(Number(btn.dataset.delPrice), 1);
+      renderPricingTable("local");
+    });
+
+    R.impPricingBody.addEventListener("input", syncPricingInputs);
+    R.locPricingBody.addEventListener("input", syncPricingInputs);
+
+    [R.fFrom, R.fTo, R.fStatus, R.fPayment, R.fSearch].forEach((el) => {
+      el.addEventListener("input", renderOrders);
+    });
+
+    R.ordersBody.addEventListener("click", onOrderActions);
+    R.ordersBody.addEventListener("input", onOrderInlineInput);
+    R.addExpense.addEventListener("click", addExpense);
+    R.expensesBody.addEventListener("click", onExpenseActions);
+
+    R.exportOrders.addEventListener("click", exportOrdersCSV);
+    R.exportCustomers.addEventListener("click", exportCustomersCSV);
+  }
+
+  function bindUploaders() {
+    bindImagePair(R.logoFile, R.logoUrl, R.logoPreview);
+    bindImagePair(R.favFile, R.favUrl, R.favPreview);
+    bindImagePair(R.fastFile, R.fastUrl, R.fastPreview);
+    bindImagePair(R.payIconFile, R.payIconUrl, R.payIconPreview);
+
+    bindImagePair(R.impImg1File, R.impImg1, R.impImg1Preview);
+    bindImagePair(R.impImg2File, R.impImg2, R.impImg2Preview);
+    bindImagePair(R.impImg3File, R.impImg3, R.impImg3Preview);
+
+    bindImagePair(R.locImg1File, R.locImg1, R.locImg1Preview);
+    bindImagePair(R.locImg2File, R.locImg2, R.locImg2Preview);
+    bindImagePair(R.locImg3File, R.locImg3, R.locImg3Preview);
+  }
+
+  function bindImagePair(fileInput, urlInput, previewImg) {
+    fileInput.addEventListener("change", async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      let finalUrl = "";
+      if (DB && DB.isReady()) {
+        finalUrl = await DB.uploadImage(file, "assets");
+      }
+      if (!finalUrl) {
+        finalUrl = await readFileAsDataUrl(file);
+      }
+      urlInput.value = finalUrl;
+      previewImg.src = finalUrl;
+    });
+
+    urlInput.addEventListener("input", () => {
+      previewImg.src = urlInput.value.trim();
+    });
+  }
+
+  function renderSettingsToForm() {
+    R.brandName.value = settings.brandName;
+    R.waOrder.value = settings.whatsappOrder;
+
+    R.logoUrl.value = settings.logo;
+    R.favUrl.value = settings.favicon;
+    R.fastUrl.value = settings.fastImage;
+    R.payIconUrl.value = settings.payment.icon;
+
+    R.logoPreview.src = settings.logo;
+    R.favPreview.src = settings.favicon || settings.logo;
+    R.fastPreview.src = settings.fastImage;
+    R.payIconPreview.src = settings.payment.icon;
+
+    R.heroAr.value = settings.texts.hero.ar;
+    R.heroEn.value = settings.texts.hero.en;
+    R.promoAr.value = settings.texts.promo.ar;
+    R.promoEn.value = settings.texts.promo.en;
+    R.fastAr.value = settings.texts.fast.ar;
+    R.fastEn.value = settings.texts.fast.en;
+    R.discountPercent.value = settings.discountPercent;
+    R.sectionAr.value = settings.texts.section.ar;
+    R.sectionEn.value = settings.texts.section.en;
+    R.recommendAr.value = settings.texts.recommendation.ar;
+    R.recommendEn.value = settings.texts.recommendation.en;
+    R.waCtaAr.value = settings.texts.waCta.ar;
+    R.waCtaEn.value = settings.texts.waCta.en;
+
+    R.instaNumber.value = settings.payment.instaNumber;
+    R.walletNumber.value = settings.payment.walletNumber;
+    R.accountName.value = settings.payment.accountName;
+    R.visaAr.value = settings.payment.visaText.ar;
+    R.visaEn.value = settings.payment.visaText.en;
+    R.deliveryNoticeAr.value = settings.texts.deliveryNotice.ar;
+    R.deliveryNoticeEn.value = settings.texts.deliveryNotice.en;
+    R.localOnlyAr.value = settings.texts.localOnly.ar;
+    R.localOnlyEn.value = settings.texts.localOnly.en;
+    R.depositAr.value = settings.texts.depositNotice.ar;
+    R.depositEn.value = settings.texts.depositNotice.en;
+
+    const imported = getProduct("imported");
+    const local = getProduct("local");
+
+    R.impTitleAr.value = imported.title.ar;
+    R.impTitleEn.value = imported.title.en;
+    R.impLineAr.value = imported.line.ar;
+    R.impLineEn.value = imported.line.en;
+    R.impSubAr.value = imported.sub.ar;
+    R.impSubEn.value = imported.sub.en;
+    R.impImg1.value = imported.images[0] || "";
+    R.impImg2.value = imported.images[1] || "";
+    R.impImg3.value = imported.images[2] || "";
+    R.impImg1Preview.src = imported.images[0] || "";
+    R.impImg2Preview.src = imported.images[1] || "";
+    R.impImg3Preview.src = imported.images[2] || "";
+
+    R.locTitleAr.value = local.title.ar;
+    R.locTitleEn.value = local.title.en;
+    R.locLineAr.value = local.line.ar;
+    R.locLineEn.value = local.line.en;
+    R.locSubAr.value = local.sub.ar;
+    R.locSubEn.value = local.sub.en;
+    R.locImg1.value = local.images[0] || "";
+    R.locImg2.value = local.images[1] || "";
+    R.locImg3.value = local.images[2] || "";
+    R.locImg1Preview.src = local.images[0] || "";
+    R.locImg2Preview.src = local.images[1] || "";
+    R.locImg3Preview.src = local.images[2] || "";
+
+    R.localColorAr.value = settings.localColor.ar;
+    R.localColorEn.value = settings.localColor.en;
+
+    renderCollectors();
+    renderImportColors();
+    renderGovernorates();
+    renderSlots();
+    renderPricingTable("imported");
+    renderPricingTable("local");
+  }
+
+  function renderAll() {
+    renderStats();
+    renderOrders();
+    renderExpenses();
+    renderCustomers();
+    renderCollectorSummary();
+  }
+
+  function renderStats() {
+    const totalOrders = orders.length;
+    const delivered = orders.filter((o) => o.status === "delivered");
+    const deliveredMetrics = delivered.map((o) => {
+      const total = num(o.total);
+      const splitTotal = calcSplitsTotal(getOrderSplits(o));
+      const rawCollected = splitTotal > 0 ? splitTotal : num(o.collected);
+      const collected = Math.min(total, rawCollected);
+      const overCollected = Math.max(0, rawCollected - total);
+      const remaining = Math.max(0, total - collected);
+      return {
+        id: o.id,
+        customerName: o.customerName || "-",
+        total,
+        collected,
+        remaining,
+        overCollected
+      };
+    });
+
+    const totalSales = deliveredMetrics.reduce((s, x) => s + x.total, 0);
+    const totalCollected = deliveredMetrics.reduce((s, x) => s + x.collected, 0);
+    const pendingCollection = deliveredMetrics.reduce((s, x) => s + x.remaining, 0);
+    const overCollectedTotal = deliveredMetrics.reduce((s, x) => s + x.overCollected, 0);
+    const totalExpenses = expenses.reduce((s, e) => s + num(e.amount), 0);
+    const net = totalCollected - totalExpenses;
+
+    R.sTotalOrders.textContent = totalOrders.toLocaleString("ar-EG");
+    R.sTotalSales.textContent = money(totalSales);
+    R.sCollected.textContent = money(totalCollected);
+    R.sPending.textContent = money(pendingCollection);
+    R.sExpenses.textContent = money(totalExpenses);
+    R.sNet.textContent = money(net);
+
+    renderFinanceAlerts(deliveredMetrics, pendingCollection, overCollectedTotal, net);
+  }
+
+  function renderFinanceAlerts(deliveredMetrics, pendingCollection, overCollectedTotal, net) {
+    if (!R.financeAlerts) return;
+    const pendingRows = deliveredMetrics
+      .filter((x) => x.remaining > 0.01)
+      .sort((a, b) => b.remaining - a.remaining);
+
+    const cards = [];
+    if (pendingCollection > 0.01) {
+      const top = pendingRows.slice(0, 5).map((x) => `#${esc(x.id)} (${esc(x.customerName)}) = ${money(x.remaining)}`).join("<br>");
+      cards.push(`
+        <div class="alert-card">
+          <b>تنبيه تحصيل:</b> يوجد تحصيلات معلقة بقيمة <b>${money(pendingCollection)}</b> في طلبات تم تسليمها.<br>
+          ${top || ""}
+        </div>
+      `);
+    } else {
+      cards.push(`<div class="alert-card ok"><b>ممتاز:</b> لا توجد تحصيلات معلقة حاليًا في الطلبات المسلّمة.</div>`);
+    }
+
+    if (net < 0) {
+      cards.push(`<div class="alert-card"><b>تنبيه مالي:</b> صافي الربح النقدي الحالي سالب (${money(net)}). راجع المصروفات والتحصيل.</div>`);
+    }
+
+    if (overCollectedTotal > 0.01) {
+      cards.push(`<div class="alert-card"><b>مراجعة مطلوبة:</b> يوجد تحصيل مُدخل أعلى من إجمالي بعض الطلبات بقيمة ${money(overCollectedTotal)}. راجع مبالغ التحصيل.</div>`);
+    }
+
+    R.financeAlerts.innerHTML = cards.join("");
+  }
+
+  function renderCollectors() {
+    if (!settings.collectors.length) {
+      R.collectorsBody.innerHTML = "<tr><td colspan='2'>لا يوجد أسماء تحصيل بعد.</td></tr>";
+      return;
+    }
+    R.collectorsBody.innerHTML = settings.collectors.map((name, idx) => `
+      <tr>
+        <td>${esc(name)}</td>
+        <td><button type="button" class="btn danger" data-del-collector="${idx}">حذف</button></td>
+      </tr>
+    `).join("");
+  }
+
+  function renderCollectorSummary() {
+    const rows = [];
+    settings.collectors.forEach((name) => {
+      let totalAssigned = 0;
+      let collected = 0;
+      orders.forEach((o) => {
+        const splits = getOrderSplits(o);
+        if (splits.length) {
+          const mine = splits
+            .filter((sp) => sp.name === name)
+            .reduce((s, sp) => s + num(sp.amount), 0);
+          if (mine > 0) {
+            totalAssigned += mine;
+            collected += mine;
+          }
+        } else if ((o.collector || "") === name) {
+          totalAssigned += num(o.total);
+          collected += num(o.collected);
+        }
+      });
+      rows.push({ name, totalAssigned, collected, remaining: Math.max(0, totalAssigned - collected) });
+    });
+
+    if (!rows.length) {
+      R.collectorSummaryBody.innerHTML = "<tr><td colspan='4'>لا يوجد بيانات تحصيل.</td></tr>";
+      return;
+    }
+
+    R.collectorSummaryBody.innerHTML = rows.map((r) => `
+      <tr>
+        <td>${esc(r.name)}</td>
+        <td>${money(r.totalAssigned)}</td>
+        <td>${money(r.collected)}</td>
+        <td>${money(r.remaining)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderImportColors() {
+    if (!settings.importedColors.length) {
+      R.importColorsBody.innerHTML = "<tr><td colspan='3'>لا توجد ألوان.</td></tr>";
+      return;
+    }
+    R.importColorsBody.innerHTML = settings.importedColors.map((c, idx) => `
+      <tr>
+        <td><input class="input" data-c-ar="${idx}" value="${escAttr(c.ar)}" /></td>
+        <td><input class="input" data-c-en="${idx}" value="${escAttr(c.en)}" /></td>
+        <td><button type="button" class="btn danger" data-del-color="${idx}">حذف</button></td>
+      </tr>
+    `).join("");
+
+    R.importColorsBody.querySelectorAll("[data-c-ar]").forEach((el) => {
+      el.addEventListener("input", () => { settings.importedColors[Number(el.dataset.cAr)].ar = el.value; });
+    });
+    R.importColorsBody.querySelectorAll("[data-c-en]").forEach((el) => {
+      el.addEventListener("input", () => { settings.importedColors[Number(el.dataset.cEn)].en = el.value; });
+    });
+  }
+
+  function renderGovernorates() {
+    if (!settings.governorates.length) {
+      R.govBody.innerHTML = "<tr><td colspan='4'>لا توجد محافظات.</td></tr>";
+      return;
+    }
+    R.govBody.innerHTML = settings.governorates.map((g, idx) => `
+      <tr>
+        <td><input class="input" data-g-ar="${idx}" value="${escAttr(g.ar)}" /></td>
+        <td><input class="input" data-g-en="${idx}" value="${escAttr(g.en)}" /></td>
+        <td><input class="input" type="number" min="0" step="0.01" data-g-fee="${idx}" value="${escAttr(g.fee)}" /></td>
+        <td><button type="button" class="btn danger" data-del-gov="${idx}">حذف</button></td>
+      </tr>
+    `).join("");
+
+    R.govBody.querySelectorAll("[data-g-ar]").forEach((el) => {
+      el.addEventListener("input", () => {
+        const idx = Number(el.dataset.gAr);
+        settings.governorates[idx].ar = el.value;
+        settings.governorates[idx].key = slug(el.value || settings.governorates[idx].en || `gov-${idx + 1}`);
+      });
+    });
+
+    R.govBody.querySelectorAll("[data-g-en]").forEach((el) => {
+      el.addEventListener("input", () => {
+        const idx = Number(el.dataset.gEn);
+        settings.governorates[idx].en = el.value;
+        if (!settings.governorates[idx].key) settings.governorates[idx].key = slug(el.value || `gov-${idx + 1}`);
+      });
+    });
+
+    R.govBody.querySelectorAll("[data-g-fee]").forEach((el) => {
+      el.addEventListener("input", () => {
+        const idx = Number(el.dataset.gFee);
+        settings.governorates[idx].fee = num(el.value);
+      });
+    });
+  }
+
+  function renderSlots() {
+    if (!settings.deliveryWindows.length) {
+      R.slotBody.innerHTML = "<tr><td colspan='3'>لا توجد مواعيد توصيل.</td></tr>";
+      return;
+    }
+
+    R.slotBody.innerHTML = settings.deliveryWindows.map((s, idx) => `
+      <tr>
+        <td><input class="input" data-s-ar="${idx}" value="${escAttr(s.ar)}" /></td>
+        <td><input class="input" data-s-en="${idx}" value="${escAttr(s.en)}" /></td>
+        <td><button type="button" class="btn danger" data-del-slot="${idx}">حذف</button></td>
+      </tr>
+    `).join("");
+
+    R.slotBody.querySelectorAll("[data-s-ar]").forEach((el) => {
+      el.addEventListener("input", () => { settings.deliveryWindows[Number(el.dataset.sAr)].ar = el.value; });
+    });
+
+    R.slotBody.querySelectorAll("[data-s-en]").forEach((el) => {
+      el.addEventListener("input", () => { settings.deliveryWindows[Number(el.dataset.sEn)].en = el.value; });
+    });
+  }
+
+  function renderPricingTable(pid) {
+    const p = getProduct(pid);
+    const body = pid === "imported" ? R.impPricingBody : R.locPricingBody;
+
+    if (!p.pricing.length) {
+      body.innerHTML = "<tr><td colspan='3'>لا توجد تسعيرات.</td></tr>";
+      return;
+    }
+
+    body.innerHTML = p.pricing.map((row, idx) => `
+      <tr>
+        <td><input class="input" type="number" min="1" step="1" data-price-qty="${idx}" value="${escAttr(row.qty)}" /></td>
+        <td><input class="input" type="number" min="0" step="0.01" data-price-value="${idx}" value="${escAttr(row.price)}" /></td>
+        <td><button type="button" class="btn danger" data-del-price="${idx}">حذف</button></td>
+      </tr>
+    `).join("");
+  }
+
+  function syncPricingInputs(e) {
+    const tr = e.target.closest("tr");
+    if (!tr) return;
+    const body = e.currentTarget;
+    const isImported = body === R.impPricingBody;
+    const p = getProduct(isImported ? "imported" : "local");
+
+    const qtyInput = tr.querySelector("[data-price-qty]");
+    const priceInput = tr.querySelector("[data-price-value]");
+    if (!qtyInput || !priceInput) return;
+
+    const idx = Number(qtyInput.dataset.priceQty || priceInput.dataset.priceValue);
+    p.pricing[idx].qty = Math.max(1, Math.floor(num(qtyInput.value)));
+    p.pricing[idx].price = Math.max(0, num(priceInput.value));
+  }
+
+  async function saveSettingsFromForm() {
+    const imported = getProduct("imported");
+    const local = getProduct("local");
+
+    settings.brandName = trim(R.brandName.value);
+    settings.whatsappOrder = trim(R.waOrder.value);
+
+    settings.logo = trim(R.logoUrl.value);
+    settings.favicon = trim(R.favUrl.value);
+    settings.fastImage = trim(R.fastUrl.value);
+    settings.payment.icon = trim(R.payIconUrl.value);
+
+    settings.texts.hero.ar = trim(R.heroAr.value);
+    settings.texts.hero.en = trim(R.heroEn.value);
+    settings.texts.promo.ar = trim(R.promoAr.value);
+    settings.texts.promo.en = trim(R.promoEn.value);
+    settings.texts.fast.ar = trim(R.fastAr.value);
+    settings.texts.fast.en = trim(R.fastEn.value);
+    settings.discountPercent = clampDiscount(R.discountPercent.value);
+    settings.texts.section.ar = trim(R.sectionAr.value);
+    settings.texts.section.en = trim(R.sectionEn.value);
+    settings.texts.recommendation.ar = trim(R.recommendAr.value);
+    settings.texts.recommendation.en = trim(R.recommendEn.value);
+    settings.texts.waCta.ar = trim(R.waCtaAr.value);
+    settings.texts.waCta.en = trim(R.waCtaEn.value);
+
+    settings.payment.instaNumber = trim(R.instaNumber.value);
+    settings.payment.walletNumber = trim(R.walletNumber.value);
+    settings.payment.accountName = trim(R.accountName.value);
+    settings.payment.visaText.ar = trim(R.visaAr.value);
+    settings.payment.visaText.en = trim(R.visaEn.value);
+
+    settings.texts.deliveryNotice.ar = trim(R.deliveryNoticeAr.value);
+    settings.texts.deliveryNotice.en = trim(R.deliveryNoticeEn.value);
+    settings.texts.localOnly.ar = trim(R.localOnlyAr.value);
+    settings.texts.localOnly.en = trim(R.localOnlyEn.value);
+    settings.texts.depositNotice.ar = trim(R.depositAr.value);
+    settings.texts.depositNotice.en = trim(R.depositEn.value);
+
+    imported.title.ar = trim(R.impTitleAr.value);
+    imported.title.en = trim(R.impTitleEn.value);
+    imported.line.ar = trim(R.impLineAr.value);
+    imported.line.en = trim(R.impLineEn.value);
+    imported.sub.ar = trim(R.impSubAr.value);
+    imported.sub.en = trim(R.impSubEn.value);
+    imported.images = [trim(R.impImg1.value), trim(R.impImg2.value), trim(R.impImg3.value)];
+
+    local.title.ar = trim(R.locTitleAr.value);
+    local.title.en = trim(R.locTitleEn.value);
+    local.line.ar = trim(R.locLineAr.value);
+    local.line.en = trim(R.locLineEn.value);
+    local.sub.ar = trim(R.locSubAr.value);
+    local.sub.en = trim(R.locSubEn.value);
+    local.images = [trim(R.locImg1.value), trim(R.locImg2.value), trim(R.locImg3.value)];
+
+    settings.localColor.ar = trim(R.localColorAr.value);
+    settings.localColor.en = trim(R.localColorEn.value);
+
+    settings.collectors = settings.collectors.map((x) => trim(x)).filter(Boolean);
+    settings.importedColors = settings.importedColors
+      .map((x) => ({ ar: trim(x.ar), en: trim(x.en) }))
+      .filter((x) => x.ar || x.en)
+      .map((x) => ({ ar: x.ar || x.en, en: x.en || x.ar }));
+
+    settings.governorates = settings.governorates
+      .map((g, idx) => ({
+        key: slug(g.key || g.ar || g.en || `gov-${idx + 1}`),
+        ar: trim(g.ar),
+        en: trim(g.en),
+        fee: num(g.fee)
+      }))
+      .filter((g) => g.ar || g.en)
+      .map((g) => ({ key: g.key, ar: g.ar || g.en, en: g.en || g.ar, fee: g.fee }));
+
+    settings.deliveryWindows = settings.deliveryWindows
+      .map((s) => ({ ar: trim(s.ar), en: trim(s.en) }))
+      .filter((s) => s.ar || s.en)
+      .map((s) => ({ ar: s.ar || s.en, en: s.en || s.ar }));
+
+    imported.pricing = imported.pricing.map((x) => ({ qty: Math.max(1, Math.floor(num(x.qty))), price: Math.max(0, num(x.price)) })).sort((a, b) => b.qty - a.qty);
+    local.pricing = local.pricing.map((x) => ({ qty: Math.max(1, Math.floor(num(x.qty))), price: Math.max(0, num(x.price)) })).sort((a, b) => b.qty - a.qty);
+
+    settings = normalizeSettings(settings);
+
+    persistLocalCache();
+    if (DB && DB.isReady()) {
+      const okRemote = await DB.saveSettings(settings);
+      if (!okRemote) {
+      err("تعذر الحفظ في قاعدة البيانات على السيرفر.");
+        return;
+      }
+    }
+    renderSettingsToForm();
+    renderAll();
+    ok("تم حفظ الإعدادات بنجاح.");
+    showToast("تم التسجيل بنجاح");
+  }
+
+  function getFilteredOrders() {
+    const from = R.fFrom.value;
+    const to = R.fTo.value;
+    const status = R.fStatus.value;
+    const pay = R.fPayment.value;
+    const search = trim(R.fSearch.value).toLowerCase();
+
+    return orders
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .filter((o) => {
+        const d = String(o.createdAt || "").slice(0, 10);
+        if (from && d < from) return false;
+        if (to && d > to) return false;
+        if (status !== "all" && o.status !== status) return false;
+        if (pay !== "all" && o.payment !== pay) return false;
+        if (search) {
+          const hay = `${o.customerName || ""} ${o.phone || ""}`.toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        return true;
+      });
+  }
+
+  function renderOrders() {
+    const list = getFilteredOrders();
+    if (!list.length) {
+      const txt = orders.length
+        ? "لا توجد طلبات مطابقة للفلاتر الحالية."
+        : "لا توجد طلبات حاليًا في قاعدة البيانات.";
+      R.ordersBody.innerHTML = `<tr><td colspan='7'>${txt}</td></tr>`;
+      return;
+    }
+
+    R.ordersBody.innerHTML = list.map((o) => `
+      <tr data-order-id="${escAttr(o.id)}">
+        <td data-label="رقم/تاريخ">
+          <b>${esc(o.id)}</b><br>
+          <small>${esc(dt(o.createdAt))}</small>
+        </td>
+        <td data-label="العميل">
+          <b>${esc(o.customerName || "-")}</b><br>
+          <small>${esc(o.phone || "")}</small><br>
+          <small>${esc(o.address || "")}</small>
+        </td>
+        <td data-label="الطلب">
+          <b>${esc(o.productName || "-")}</b><br>
+          <small>عدد: ${esc(o.quantity || "-")}</small><br>
+          <small>محافظة: ${esc(o.governorate || "-")}</small><br>
+          <small>توصيل: ${esc(o.deliveryDate || "-")} | ${esc(o.deliveryTime || "-")}</small>
+        </td>
+        <td data-label="المالي">
+          <small>السعر: ${money(o.salePrice)}</small><br>
+          <small>الشحن: ${money(o.shipping)}</small><br>
+          <small>المحصّل: ${money(getOrderCollected(o))}</small><br>
+          <b>الإجمالي: ${money(o.total)}</b>
+        </td>
+        <td data-label="الحالات">
+          <label class="small">حالة الطلب</label>
+          <select class="input" data-k="status">
+            ${Object.keys(STATUS_LABELS).map((k) => `<option value="${k}" ${o.status === k ? "selected" : ""}>${STATUS_LABELS[k]}</option>`).join("")}
+          </select>
+          <label class="small">حالة الدفع</label>
+          <select class="input" data-k="payment">
+            ${Object.keys(PAY_LABELS).map((k) => `<option value="${k}" ${o.payment === k ? "selected" : ""}>${PAY_LABELS[k]}</option>`).join("")}
+          </select>
+          <label class="small">تفاصيل التحصيل (يمكن أكثر من محصل)</label>
+          <div class="split-wrap" data-splits>
+            ${renderSplitRows(getOrderSplits(o))}
+          </div>
+          <div class="inline" style="margin-top:6px">
+            <button type="button" class="btn soft" data-a="add-split">+ إضافة محصّل</button>
+          </div>
+          <div class="small split-total">الإجمالي المحصّل: -</div>
+        </td>
+        <td data-label="ملاحظات">
+          <input class="input" data-k="adminNotes" value="${escAttr(o.adminNotes || "")}" placeholder="ملاحظة داخلية" /><br>
+          <small>اللوكيشن: ${o.locationUrl ? `<a href="${escAttr(o.locationUrl)}" target="_blank" rel="noopener">فتح</a>` : "-"}</small>
+        </td>
+        <td data-label="إجراءات">
+          <div class="inline">
+            <button type="button" class="btn main" data-a="save">حفظ</button>
+            <button type="button" class="btn danger" data-a="delete">حذف</button>
+            <button type="button" class="btn soft" data-a="wa">واتساب</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+    R.ordersBody.querySelectorAll("tr[data-order-id]").forEach((tr) => {
+      refreshSplitTotalUi(tr, false);
+    });
+  }
+
+  function renderSplitRows(splits) {
+    const list = Array.isArray(splits) ? splits : [];
+    if (!list.length) return `<div class="small">لا يوجد توزيع تحصيل بعد.</div>`;
+    return list.map((sp) => renderSplitRow(sp)).join("");
+  }
+
+  function renderSplitRow(split) {
+    const name = trim(split && split.name);
+    const amount = num(split && split.amount);
+    return `
+      <div class="split-row" data-split-row>
+        <select class="input" data-split-name>
+          <option value="">اختار المحصل</option>
+          ${settings.collectors.map((c) => `<option value="${escAttr(c)}" ${name === c ? "selected" : ""}>${esc(c)}</option>`).join("")}
+        </select>
+        <input class="input" data-split-amount type="number" min="0" step="0.01" value="${escAttr(amount)}" placeholder="المبلغ" />
+        <button type="button" class="btn danger" data-a="del-split">حذف</button>
+      </div>
+    `;
+  }
+
+  function collectSplitRows(tr) {
+    return [...tr.querySelectorAll("[data-split-row]")].map((row) => {
+      const nameEl = row.querySelector("[data-split-name]");
+      const amountEl = row.querySelector("[data-split-amount]");
+      return {
+        name: trim(nameEl && nameEl.value),
+        amount: num(amountEl && amountEl.value)
+      };
+    }).filter((sp) => sp.name && sp.amount > 0);
+  }
+
+  function refreshSplitTotalUi(tr, showError = false) {
+    if (!tr) return;
+    const totalEl = tr.querySelector(".split-total");
+    const id = tr.dataset.orderId;
+    const order = orders.find((o) => String(o.id) === String(id));
+    if (!totalEl || !order) return true;
+
+    const splitTotal = calcSplitsTotal(collectSplitRows(tr));
+    const orderTotal = num(order.total);
+    const exceeded = splitTotal > orderTotal + 0.0001;
+
+    if (exceeded) {
+      totalEl.classList.add("err");
+      totalEl.textContent = `الإجمالي المحصّل: ${money(splitTotal)} (تجاوز إجمالي الطلب ${money(orderTotal)})`;
+      if (showError) {
+        err(`خطأ: التحصيل المدخل ${money(splitTotal)} أكبر من إجمالي الطلب ${money(orderTotal)}.`);
+        showToast("خطأ: التحصيل أكبر من إجمالي الطلب", "err");
+      }
+      return false;
+    }
+
+    totalEl.classList.remove("err");
+    totalEl.textContent = `الإجمالي المحصّل: ${money(splitTotal)}`;
+    return true;
+  }
+
+  async function onOrderActions(e) {
+    const btn = e.target.closest("[data-a]");
+    if (!btn) return;
+    const tr = btn.closest("tr[data-order-id]");
+    if (!tr) return;
+
+    const id = tr.dataset.orderId;
+    const idx = orders.findIndex((o) => String(o.id) === String(id));
+    if (idx < 0) return;
+
+    if (btn.dataset.a === "add-split") {
+      const wrap = tr.querySelector("[data-splits]");
+      if (!wrap) return;
+      const empty = wrap.querySelector(".small");
+      if (empty) empty.remove();
+      wrap.insertAdjacentHTML("beforeend", renderSplitRow({ name: "", amount: 0 }));
+      refreshSplitTotalUi(tr);
+      return;
+    }
+
+    if (btn.dataset.a === "del-split") {
+      const row = btn.closest("[data-split-row]");
+      if (!row) return;
+      row.remove();
+      const wrap = tr.querySelector("[data-splits]");
+      if (wrap && !wrap.querySelector("[data-split-row]")) {
+        wrap.innerHTML = `<div class="small">لا يوجد توزيع تحصيل بعد.</div>`;
+      }
+      refreshSplitTotalUi(tr);
+      return;
+    }
+
+    if (btn.dataset.a === "delete") {
+      if (!confirm("تأكيد حذف هذا الطلب؟")) return;
+      const deletedOrderId = orders[idx].id;
+      orders.splice(idx, 1);
+      persistLocalCache();
+      if (DB && DB.isReady()) {
+        const okRemote = await DB.deleteOrder(deletedOrderId);
+        if (!okRemote) {
+      err("تعذر حذف الطلب من قاعدة البيانات.");
+          return;
+        }
+      }
+      renderAll();
+      ok("تم حذف الطلب.");
+      return;
+    }
+
+    if (btn.dataset.a === "wa") {
+      const order = orders[idx];
+      const number = normalizeWaNumber(order.phone || settings.whatsappOrder);
+      const text = `متابعة طلب رقم ${order.id} - Iris Petals`;
+      window.open(`https://wa.me/${number}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+      return;
+    }
+
+    if (btn.dataset.a === "save") {
+      if (!refreshSplitTotalUi(tr, true)) return;
+      const nextOrder = { ...orders[idx] };
+      tr.querySelectorAll("[data-k]").forEach((el) => {
+        const key = el.dataset.k;
+        nextOrder[key] = el.value;
+      });
+      const splits = collectSplitRows(tr);
+      nextOrder.collectorSplits = splits;
+      if (splits.length) {
+        nextOrder.collector = splits.length === 1 ? splits[0].name : "multi";
+        nextOrder.collected = calcSplitsTotal(splits);
+      } else {
+        nextOrder.collector = "";
+        nextOrder.collected = 0;
+      }
+      orders[idx] = normalizeOrder(nextOrder);
+      persistLocalCache();
+      if (DB && DB.isReady()) {
+        const okRemote = await DB.upsertOrder(orders[idx]);
+        if (!okRemote) {
+      err("تعذر الحفظ في قاعدة البيانات على السيرفر.");
+          return;
+        }
+      }
+      renderAll();
+      ok("تم حفظ تحديث الطلب.");
+      showToast("تم التسجيل بنجاح");
+    }
+  }
+
+  function onOrderInlineInput(e) {
+    if (!e.target.closest("tr[data-order-id]")) return;
+    if (!e.target.matches("[data-split-name], [data-split-amount]")) return;
+    const tr = e.target.closest("tr[data-order-id]");
+    refreshSplitTotalUi(tr);
+  }
+
+  async function addExpense() {
+    const date = R.expenseDate.value || new Date().toISOString().slice(0, 10);
+    const type = trim(R.expenseType.value);
+    const amount = num(R.expenseAmount.value);
+    const note = trim(R.expenseNote.value);
+
+    if (!type || amount <= 0) {
+      err("من فضلك اكتب نوع المصروف ومبلغ صحيح.");
+      return;
+    }
+
+    const newExpense = {
+      id: `EXP-${Date.now()}`,
+      date,
+      type,
+      amount,
+      note,
+      createdAt: new Date().toISOString()
+    };
+    expenses.push(newExpense);
+    persistLocalCache();
+    if (DB && DB.isReady()) {
+      const okRemote = await DB.upsertExpense(newExpense);
+      if (!okRemote) {
+      err("تعذر الحفظ في قاعدة البيانات على السيرفر.");
+        return;
+      }
+    }
+
+    R.expenseType.value = "";
+    R.expenseAmount.value = "";
+    R.expenseNote.value = "";
+
+    renderAll();
+    ok("تم إضافة المصروف.");
+  }
+
+  function renderExpenses() {
+    if (!expenses.length) {
+      R.expensesBody.innerHTML = "<tr><td colspan='5'>لا توجد مصروفات مسجلة.</td></tr>";
+      return;
+    }
+
+    const list = expenses.slice().sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+    R.expensesBody.innerHTML = list.map((e) => `
+      <tr data-expense-id="${escAttr(e.id)}">
+        <td>${esc(e.date || "-")}</td>
+        <td>${esc(e.type || "-")}</td>
+        <td>${money(e.amount)}</td>
+        <td>${esc(e.note || "-")}</td>
+        <td><button type="button" class="btn danger" data-a="del-exp">حذف</button></td>
+      </tr>
+    `).join("");
+  }
+
+  async function onExpenseActions(e) {
+    const btn = e.target.closest("[data-a='del-exp']");
+    if (!btn) return;
+    const tr = btn.closest("tr[data-expense-id]");
+    if (!tr) return;
+    const id = tr.dataset.expenseId;
+
+    expenses = expenses.filter((x) => String(x.id) !== String(id));
+    persistLocalCache();
+    if (DB && DB.isReady()) {
+      const okRemote = await DB.deleteExpense(id);
+      if (!okRemote) {
+      err("تعذر حذف المصروف من قاعدة البيانات.");
+        return;
+      }
+    }
+    renderAll();
+    ok("تم حذف المصروف.");
+  }
+
+  function renderCustomers() {
+    const map = new Map();
+    const sorted = orders.slice().sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    sorted.forEach((o) => {
+      const phone = trim(o.phone || "-");
+      if (!map.has(phone)) {
+        map.set(phone, {
+          name: o.customerName || "-",
+          phone,
+          count: 0,
+          total: 0,
+          lastDate: o.createdAt,
+          lastAddress: o.address || ""
+        });
+      }
+      const c = map.get(phone);
+      c.count += 1;
+      if (o.status === "delivered") c.total += num(o.total);
+      c.lastDate = o.createdAt;
+      c.lastAddress = o.address || c.lastAddress;
+      if (!c.name || c.name === "-") c.name = o.customerName || "-";
+    });
+
+    const rows = [...map.values()].sort((a, b) => b.total - a.total);
+
+    if (!rows.length) {
+      R.customersBody.innerHTML = "<tr><td colspan='6'>لا توجد بيانات عملاء بعد.</td></tr>";
+      return;
+    }
+
+    R.customersBody.innerHTML = rows.map((c) => `
+      <tr>
+        <td>${esc(c.name)}</td>
+        <td>${esc(c.phone)}</td>
+        <td>${esc(c.count)}</td>
+        <td>${money(c.total)}</td>
+        <td>${esc(dt(c.lastDate))}</td>
+        <td>${esc(c.lastAddress || "-")}</td>
+      </tr>
+    `).join("");
+  }
+
+  function exportOrdersCSV() {
+    const list = getFilteredOrders();
+    if (!list.length) {
+      err("لا توجد طلبات للتصدير.");
+      return;
+    }
+
+    const cols = [
+      "id", "createdAt", "status", "payment", "collector", "collectorSplits", "collected", "productName", "quantity", "beforePrice", "salePrice", "shipping", "total", "governorate", "deliveryDate", "deliveryTime", "color", "wrapColor", "customerName", "phone", "address", "locationUrl", "cardText", "notes", "adminNotes"
+    ];
+
+    const rows = [cols.join(",")].concat(list.map((o) => cols.map((k) => {
+      if (k === "collectorSplits") return csvCell(JSON.stringify(getOrderSplits(o)));
+      return csvCell(o[k]);
+    }).join(",")));
+    downloadBlob("irispetals-orders.csv", rows.join("\n"));
+    ok("تم تصدير الطلبات.");
+  }
+
+  function exportCustomersCSV() {
+    const rows = [...R.customersBody.querySelectorAll("tr")].map((tr) => [...tr.children].map((td) => csvCell(td.innerText.trim())).join(","));
+    if (!rows.length || rows[0].includes("لا توجد")) {
+      err("لا توجد بيانات عملاء للتصدير.");
+      return;
+    }
+    const head = ["name", "phone", "orders_count", "delivered_total", "last_order_date", "last_address"].join(",");
+    downloadBlob("irispetals-customers.csv", [head].concat(rows).join("\n"));
+    ok("تم تصدير بيانات العملاء.");
+  }
+
+  function getProduct(id) {
+    return settings.products.find((p) => p.id === id);
+  }
+
+  function normalizeOrders(list) {
+    return (Array.isArray(list) ? list : []).map(normalizeOrder);
+  }
+
+  function normalizeOrder(order) {
+    const o = { ...(order || {}) };
+    const splits = Array.isArray(o.collectorSplits)
+      ? o.collectorSplits.map((sp) => ({ name: trim(sp && sp.name), amount: num(sp && sp.amount) })).filter((sp) => sp.name && sp.amount > 0)
+      : [];
+
+    if (splits.length) {
+      o.collectorSplits = splits;
+      o.collected = calcSplitsTotal(splits);
+      o.collector = splits.length === 1 ? splits[0].name : "multi";
+      return o;
+    }
+
+    const fallbackName = trim(o.collector);
+    const fallbackCollected = num(o.collected);
+    if (fallbackName && fallbackCollected > 0) {
+      o.collectorSplits = [{ name: fallbackName, amount: fallbackCollected }];
+      o.collected = fallbackCollected;
+      return o;
+    }
+
+    o.collectorSplits = [];
+    o.collector = fallbackName;
+    o.collected = fallbackCollected;
+    return o;
+  }
+
+  function getOrderSplits(order) {
+    return normalizeOrder(order).collectorSplits || [];
+  }
+
+  function getOrderCollected(order) {
+    const o = normalizeOrder(order);
+    const raw = calcSplitsTotal(o.collectorSplits) || num(o.collected);
+    return Math.min(num(o.total), raw);
+  }
+
+  function calcSplitsTotal(splits) {
+    return (Array.isArray(splits) ? splits : []).reduce((s, sp) => s + num(sp.amount), 0);
+  }
+
+  function readJSON(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return structuredCloneSafe(fallback);
+      const parsed = JSON.parse(raw);
+      return parsed == null ? structuredCloneSafe(fallback) : parsed;
+    } catch {
+      return structuredCloneSafe(fallback);
+    }
+  }
+
+  function writeJSON(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function persistLocalCache() {
+    writeJSON(KEYS.settings, settings);
+    writeJSON(KEYS.orders, orders);
+    writeJSON(KEYS.expenses, expenses);
+  }
+
+  function normalizeSettings(raw) {
+    const merged = deepMerge(structuredCloneSafe(DEF), raw || {});
+
+    merged.products = Array.isArray(merged.products) ? merged.products : structuredCloneSafe(DEF.products);
+    const mp = new Map(merged.products.map((p) => [p.id, p]));
+    merged.products = DEF.products.map((base) => {
+      const got = mp.get(base.id) || {};
+      const out = deepMerge(structuredCloneSafe(base), got);
+      out.images = Array.isArray(out.images) ? out.images.slice(0, 3) : ["", "", ""];
+      while (out.images.length < 3) out.images.push("");
+      out.pricing = (Array.isArray(out.pricing) ? out.pricing : [])
+        .map((x) => ({ qty: Math.max(1, Math.floor(num(x.qty))), price: Math.max(0, num(x.price)) }))
+        .filter((x) => x.qty > 0)
+        .sort((a, b) => b.qty - a.qty);
+      if (!out.pricing.length) out.pricing = structuredCloneSafe(base.pricing);
+      return out;
+    });
+
+    merged.importedColors = (Array.isArray(merged.importedColors) ? merged.importedColors : [])
+      .map((x) => ({ ar: trim(x.ar), en: trim(x.en) }))
+      .filter((x) => x.ar || x.en)
+      .map((x) => ({ ar: x.ar || x.en, en: x.en || x.ar }));
+    if (!merged.importedColors.length) merged.importedColors = structuredCloneSafe(DEF.importedColors);
+
+    merged.governorates = (Array.isArray(merged.governorates) ? merged.governorates : [])
+      .map((g, idx) => ({ key: slug(g.key || g.ar || g.en || `gov-${idx + 1}`), ar: trim(g.ar), en: trim(g.en), fee: num(g.fee) }))
+      .filter((g) => g.key)
+      .map((g) => ({ key: g.key, ar: g.ar || g.en || g.key, en: g.en || g.ar || g.key, fee: g.fee }));
+    if (!merged.governorates.length) merged.governorates = structuredCloneSafe(DEF.governorates);
+
+    merged.collectors = (Array.isArray(merged.collectors) ? merged.collectors : []).map(trim).filter(Boolean);
+    if (!merged.collectors.length) merged.collectors = structuredCloneSafe(DEF.collectors);
+
+    merged.deliveryWindows = (Array.isArray(merged.deliveryWindows) ? merged.deliveryWindows : [])
+      .map((x) => ({ ar: trim(x.ar), en: trim(x.en) }))
+      .filter((x) => x.ar || x.en)
+      .map((x) => ({ ar: x.ar || x.en, en: x.en || x.ar }));
+    if (!merged.deliveryWindows.length) merged.deliveryWindows = structuredCloneSafe(DEF.deliveryWindows);
+
+    merged.discountPercent = clampDiscount(merged.discountPercent);
+
+    return merged;
+  }
+
+  function deepMerge(base, patch) {
+    if (!patch || typeof patch !== "object") return base;
+    for (const k of Object.keys(patch)) {
+      const pv = patch[k];
+      if (Array.isArray(pv)) {
+        base[k] = structuredCloneSafe(pv);
+      } else if (pv && typeof pv === "object") {
+        const bv = base[k] && typeof base[k] === "object" && !Array.isArray(base[k]) ? base[k] : {};
+        base[k] = deepMerge(bv, pv);
+      } else if (pv !== undefined) {
+        base[k] = pv;
+      }
+    }
+    return base;
+  }
+
+  function structuredCloneSafe(v) {
+    return JSON.parse(JSON.stringify(v));
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result || ""));
+      fr.onerror = reject;
+      fr.readAsDataURL(file);
+    });
+  }
+
+  function normalizeWaNumber(input) {
+    let d = String(input || "").replace(/\D+/g, "");
+    if (d.startsWith("00")) d = d.slice(2);
+    if (d.startsWith("0")) return `2${d}`;
+    return d;
+  }
+
+  function money(v) {
+    return `${num(v).toLocaleString("ar-EG")} جنيه`;
+  }
+
+  function dt(v) {
+    if (!v) return "-";
+    const d = new Date(v);
+    return isNaN(d) ? String(v) : d.toLocaleString("ar-EG");
+  }
+
+  function num(v) {
+    const n = Number(v);
+    return isFinite(n) ? n : 0;
+  }
+
+  function clampDiscount(v) {
+    const n = Number(v);
+    if (!isFinite(n)) return 50;
+    return Math.min(95, Math.max(0, Math.round(n)));
+  }
+
+  function trim(v) {
+    return String(v || "").trim();
+  }
+
+  function slug(v) {
+    return String(v || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\u0600-\u06ff]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40);
+  }
+
+  function downloadBlob(filename, content) {
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function csvCell(v) {
+    return `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    }[c]));
+  }
+
+  function escAttr(s) {
+    return esc(s).replace(/`/g, "&#96;");
+  }
+
+  function ok(text) {
+    R.msg.className = "msg ok";
+    R.msg.textContent = text;
+  }
+
+  function err(text) {
+    R.msg.className = "msg err";
+    R.msg.textContent = text;
+  }
+
+  function showToast(text, type = "ok") {
+    if (!R.toast) return;
+    R.toast.textContent = text;
+    R.toast.className = `toast ${type === "err" ? "err" : ""}`.trim();
+    R.toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      R.toast.classList.remove("show");
+    }, 2200);
+  }
+
+  function q(s) {
+    return document.querySelector(s);
+  }
+})();
+</script>
+</body>
+</html>
