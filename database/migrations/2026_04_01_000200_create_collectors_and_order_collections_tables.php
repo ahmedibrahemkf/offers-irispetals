@@ -22,15 +22,17 @@ return new class extends Migration
         if (! Schema::hasTable('order_collections')) {
             Schema::create('order_collections', function (Blueprint $table): void {
                 $table->id();
-                $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
-                $table->foreignId('collector_id')->nullable()->constrained('collectors')->nullOnDelete();
+                // Keep compatibility with legacy schemas where key types differ.
+                $table->unsignedBigInteger('order_id');
+                $table->unsignedBigInteger('collector_id')->nullable();
                 $table->string('collector_name_snapshot', 120);
                 $table->decimal('amount', 10, 2)->default(0);
                 $table->text('note')->nullable();
-                $table->foreignId('created_by')->constrained('users');
+                $table->unsignedBigInteger('created_by');
                 $table->timestamps();
                 $table->softDeletes();
                 $table->index(['order_id', 'collector_id']);
+                $table->index('created_by');
             });
         }
     }
