@@ -4,10 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,12 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen('eloquent.creating: *', function (string $eventName, array $payload): void {
-            $model = $payload[0] ?? null;
-            if (! $model instanceof Model) {
-                return;
-            }
-
+        Model::creating(function (Model $model): void {
             $this->hydrateLegacyIdIfNeeded($model);
             $this->hydrateLegacyPayloadIfNeeded($model);
             $this->hydrateLegacySoftDeleteIfNeeded($model);
@@ -89,22 +82,48 @@ class AppServiceProvider extends ServiceProvider
         }
 
         if ($meta['integer']) {
-            $maxId = (int) DB::table($table)->max('id');
-            $model->setAttribute('id', max(1, $maxId + 1));
+            $model->setAttribute('id', $this->nextNumericId($table));
 
             return;
         }
 
         if ($meta['character']) {
-            $generatedId = (string) Str::ulid();
+            $generatedId = (string) $this->nextCharacterNumericId($table);
             $maxLength = $meta['length'];
             if (is_int($maxLength) && $maxLength > 0 && strlen($generatedId) > $maxLength) {
-                $generatedId = substr($generatedId, 0, $maxLength);
+                $generatedId = substr($generatedId, -$maxLength);
             }
 
             $model->setAttribute('id', $generatedId);
         }
 
+    }
+
+    private function nextNumericId(string $table): int
+    {
+        $candidate = max(1, ((int) DB::table($table)->max('id')) + 1);
+
+        while (DB::table($table)->where('id', $candidate)->exists()) {
+            $candidate++;
+        }
+
+        return $candidate;
+    }
+
+    private function nextCharacterNumericId(string $table): string
+    {
+        $maxNumeric = DB::table($table)
+            ->whereRaw("`id` REGEXP '^[0-9]+$'")
+            ->selectRaw('MAX(CAST(`id` AS UNSIGNED)) as max_id')
+            ->value('max_id');
+
+        $candidate = max(1, ((int) $maxNumeric) + 1);
+
+        while (DB::table($table)->where('id', (string) $candidate)->exists()) {
+            $candidate++;
+        }
+
+        return (string) $candidate;
     }
 
     private function hydrateLegacyPayloadIfNeeded(Model $model): void

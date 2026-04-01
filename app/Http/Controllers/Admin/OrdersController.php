@@ -18,7 +18,6 @@ use App\Support\SystemNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class OrdersController extends BaseAdminController
@@ -188,14 +187,6 @@ class OrdersController extends BaseAdminController
 
             return $order;
         });
-
-        $this->forceOrderVisibleIfLegacySoftDeleteDefault($order);
-
-        if ($this->canOpenOrderDetails($order)) {
-            return redirect()
-                ->route('admin.orders.show', $order)
-                ->with('status', 'تم إنشاء الطلب بنجاح');
-        }
 
         return redirect()
             ->route('admin.orders.index')
@@ -426,22 +417,6 @@ class OrdersController extends BaseAdminController
             ->where('is_active', true)
             ->pluck('id')
             ->each(static fn ($id) => SystemNotifier::notify((int) $id, $type, $title, $body, $link));
-    }
-
-    private function canOpenOrderDetails(Order $order): bool
-    {
-        return Order::query()->whereKey($order->getKey())->exists();
-    }
-
-    private function forceOrderVisibleIfLegacySoftDeleteDefault(Order $order): void
-    {
-        if (! Schema::hasColumn($order->getTable(), 'deleted_at')) {
-            return;
-        }
-
-        Order::withoutGlobalScopes()
-            ->whereKey($order->getKey())
-            ->update(['deleted_at' => null]);
     }
 
     private function orderRequiredFields(): array
