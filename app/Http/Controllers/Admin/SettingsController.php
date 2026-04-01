@@ -24,7 +24,7 @@ class SettingsController extends BaseAdminController
             'colors' => Color::query()->orderBy('name')->get(),
             'productCategories' => ProductCategory::query()->orderBy('name')->get(),
             'expenseCategories' => ExpenseCategory::query()->orderBy('name')->get(),
-            'collectors' => Collector::query()->where('is_active', true)->orderBy('name')->get(),
+            'collectors' => Collector::query()->orderByDesc('is_active')->orderBy('name')->get(),
         ]);
     }
 
@@ -139,5 +139,30 @@ class SettingsController extends BaseAdminController
         ]);
 
         return back()->with('status', 'تمت إضافة محصل جديد');
+    }
+
+    public function updateCollector(Request $request, Collector $collector): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:120',
+            'phone' => 'nullable|string|max:20',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $collector->fill([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'] ?? null,
+            'is_active' => (bool) ($validated['is_active'] ?? false),
+        ]);
+        $collector->save();
+
+        return back()->with('status', 'تم تحديث بيانات المحصل');
+    }
+
+    public function destroyCollector(Collector $collector): RedirectResponse
+    {
+        $collector->delete();
+
+        return back()->with('status', 'تم حذف المحصل');
     }
 }

@@ -83,6 +83,8 @@ Route::prefix('admin')->group(function (): void {
         Route::post('/settings/product-categories', [SettingsController::class, 'storeProductCategory'])->middleware('role:owner,manager')->name('admin.settings.product-categories.store');
         Route::post('/settings/expense-categories', [SettingsController::class, 'storeExpenseCategory'])->middleware('role:owner,manager')->name('admin.settings.expense-categories.store');
         Route::post('/settings/collectors', [SettingsController::class, 'storeCollector'])->middleware('role:owner,manager')->name('admin.settings.collectors.store');
+        Route::put('/settings/collectors/{collector}', [SettingsController::class, 'updateCollector'])->middleware('role:owner,manager')->name('admin.settings.collectors.update');
+        Route::delete('/settings/collectors/{collector}', [SettingsController::class, 'destroyCollector'])->middleware('role:owner,manager')->name('admin.settings.collectors.destroy');
 
         Route::get('/notifications', [NotificationsController::class, 'index'])->name('admin.notifications.index');
         Route::post('/notifications/mark-all-read', [NotificationsController::class, 'markAllRead'])->name('admin.notifications.mark-all-read');

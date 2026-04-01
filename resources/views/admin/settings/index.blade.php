@@ -103,14 +103,52 @@
         <input class="input" name="phone" placeholder="رقم هاتف المحصل">
         <button class="btn btn-primary" type="submit">إضافة</button>
       </form>
-      <ul>
-        @forelse($collectors as $collector)
-          <li>{{ $collector->name }} @if($collector->phone) - {{ $collector->phone }} @endif</li>
-        @empty
-          <li>لا يوجد محصلون حتى الآن</li>
-        @endforelse
-      </ul>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>الهاتف</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($collectors as $collector)
+              <tr>
+                <td>
+                  <input class="input" name="name" value="{{ $collector->name }}" required form="collector-update-{{ $collector->id }}">
+                </td>
+                <td>
+                  <input class="input" name="phone" value="{{ $collector->phone }}" form="collector-update-{{ $collector->id }}">
+                </td>
+                <td>
+                  <label style="display:flex;align-items:center;gap:6px">
+                    <input type="checkbox" name="is_active" value="1" @checked($collector->is_active) form="collector-update-{{ $collector->id }}">
+                    نشط
+                  </label>
+                </td>
+                <td style="display:flex;gap:8px;flex-wrap:wrap">
+                  <form id="collector-update-{{ $collector->id }}" method="post" action="{{ route('admin.settings.collectors.update', $collector) }}" style="display:none">
+                    @csrf
+                    @method('PUT')
+                  </form>
+                  <button class="btn btn-primary" type="submit" form="collector-update-{{ $collector->id }}">حفظ</button>
+                  <form method="post" action="{{ route('admin.settings.collectors.destroy', $collector) }}" onsubmit="return confirm('حذف المحصل؟');">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger" type="submit">حذف</button>
+                  </form>
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="4">لا يوجد محصلون حتى الآن</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 @endsection
-
