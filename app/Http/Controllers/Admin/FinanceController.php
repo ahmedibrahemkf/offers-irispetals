@@ -71,10 +71,15 @@ class FinanceController extends BaseAdminController
             'username' => 'required|string|max:60|unique:users,username',
             'phone' => 'nullable|string|max:20|unique:users,phone',
             'role' => 'required|in:owner,manager,staff,craftsman,viewer',
+            'can_create_records' => 'nullable|boolean',
+            'can_update_records' => 'nullable|boolean',
+            'can_delete_records' => 'nullable|boolean',
             'base_salary' => 'nullable|numeric|min:0',
             'hire_date' => 'nullable|date',
             'password' => 'required|string|min:8|max:100',
         ]);
+
+        $defaults = $this->crudDefaultsForRole((string) $validated['role']);
 
         User::query()->create([
             'name' => $validated['name'],
@@ -82,12 +87,41 @@ class FinanceController extends BaseAdminController
             'phone' => $validated['phone'] ?? null,
             'role' => $validated['role'],
             'is_active' => true,
+            'can_create_records' => $request->boolean('can_create_records', $defaults['can_create_records']),
+            'can_update_records' => $request->boolean('can_update_records', $defaults['can_update_records']),
+            'can_delete_records' => $request->boolean('can_delete_records', $defaults['can_delete_records']),
             'base_salary' => (float) ($validated['base_salary'] ?? 0),
             'hire_date' => $validated['hire_date'] ?? null,
             'password' => $validated['password'],
         ]);
 
         return back()->with('status', 'تمت إضافة الموظف');
+    }
+
+    public function updateEmployeePermissions(Request $request, User $employee): RedirectResponse
+    {
+        $validated = $request->validate([
+            'can_create_records' => 'nullable|boolean',
+            'can_update_records' => 'nullable|boolean',
+            'can_delete_records' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        if ($employee->role === 'owner') {
+            $validated['can_create_records'] = true;
+            $validated['can_update_records'] = true;
+            $validated['can_delete_records'] = true;
+        }
+
+        $employee->fill([
+            'can_create_records' => (bool) ($validated['can_create_records'] ?? false),
+            'can_update_records' => (bool) ($validated['can_update_records'] ?? false),
+            'can_delete_records' => (bool) ($validated['can_delete_records'] ?? false),
+            'is_active' => (bool) ($validated['is_active'] ?? false),
+        ]);
+        $employee->save();
+
+        return back()->with('status', 'تم تحديث صلاحيات المستخدم');
     }
 
     public function storeEmployeeFinancial(Request $request): RedirectResponse
@@ -203,6 +237,27 @@ class FinanceController extends BaseAdminController
         SystemLogger::log((int) $user->id, 'monthly_payroll_created', 'Created payroll for '.$month.' ('.$created.' employees)', 'EmployeeFinancial', null, $request);
 
         return back()->with('status', 'تم تسجيل المرتبات الشهرية. تمت الإضافة: '.$created.' | تم التجاوز: '.$skipped);
+    }
+
+    private function crudDefaultsForRole(string $role): array
+    {
+        return match ($role) {
+            'owner', 'manager' => [
+                'can_create_records' => true,
+                'can_update_records' => true,
+                'can_delete_records' => true,
+            ],
+            'staff' => [
+                'can_create_records' => true,
+                'can_update_records' => true,
+                'can_delete_records' => false,
+            ],
+            default => [
+                'can_create_records' => false,
+                'can_update_records' => false,
+                'can_delete_records' => false,
+            ],
+        };
     }
 }
 

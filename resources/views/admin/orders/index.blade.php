@@ -38,7 +38,9 @@
       </select>
       <div class="actions">
         <button class="btn btn-primary" type="submit">تصفية</button>
-        <a class="btn btn-soft" href="{{ route('admin.orders.create') }}">طلب جديد</a>
+        @if($authUser?->canCreateRecords())
+          <a class="btn btn-soft" href="{{ route('admin.orders.create') }}">طلب جديد</a>
+        @endif
       </div>
     </form>
   </div>
@@ -71,7 +73,9 @@
             <td>{{ $paymentLabels[$order->payment_status] ?? $order->payment_status }}</td>
             <td class="actions">
               <a class="btn btn-soft" href="{{ route('admin.orders.show', $order) }}">عرض</a>
-              <a class="btn btn-soft" href="{{ route('admin.orders.edit', $order) }}">تعديل</a>
+              @if($authUser?->canUpdateRecords())
+                <a class="btn btn-soft" href="{{ route('admin.orders.edit', $order) }}">تعديل</a>
+              @endif
             </td>
           </tr>
         @empty

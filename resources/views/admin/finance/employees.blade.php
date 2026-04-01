@@ -18,6 +18,19 @@
         <input class="input" type="number" step="0.01" min="0" name="base_salary" placeholder="المرتب الأساسي">
         <input class="input" type="date" name="hire_date">
         <input class="input" type="password" name="password" placeholder="كلمة المرور" required>
+
+        <div class="card" style="grid-column:1 / -1;padding:10px">
+          <b>صلاحيات العمليات</b>
+          <div class="actions" style="margin-top:8px">
+            <input type="hidden" name="can_create_records" value="0">
+            <label><input type="checkbox" name="can_create_records" value="1" checked> إضافة</label>
+            <input type="hidden" name="can_update_records" value="0">
+            <label><input type="checkbox" name="can_update_records" value="1" checked> تعديل</label>
+            <input type="hidden" name="can_delete_records" value="0">
+            <label><input type="checkbox" name="can_delete_records" value="1"> حذف</label>
+          </div>
+        </div>
+
         <button class="btn btn-primary" type="submit">حفظ الموظف</button>
       </form>
     </section>
@@ -73,6 +86,7 @@
           <th>الاسم</th>
           <th>اسم المستخدم</th>
           <th>الدور</th>
+          <th>الصلاحيات</th>
           <th>المرتب</th>
           <th>الحالة</th>
           <th>إجراء</th>
@@ -84,12 +98,17 @@
             <td>{{ $employee->name }}</td>
             <td>{{ $employee->username }}</td>
             <td>{{ $employee->role }}</td>
+            <td>
+              <span class="badge">{{ $employee->canCreateRecords() ? 'إضافة' : '-' }}</span>
+              <span class="badge">{{ $employee->canUpdateRecords() ? 'تعديل' : '-' }}</span>
+              <span class="badge">{{ $employee->canDeleteRecords() ? 'حذف' : '-' }}</span>
+            </td>
             <td>{{ number_format((float) $employee->base_salary, 2) }} ج</td>
             <td>{{ $employee->is_active ? 'نشط' : 'موقوف' }}</td>
             <td><a class="btn btn-soft" href="{{ route('admin.employees.show', $employee) }}">عرض</a></td>
           </tr>
         @empty
-          <tr><td colspan="6">لا يوجد موظفون</td></tr>
+          <tr><td colspan="7">لا يوجد موظفون</td></tr>
         @endforelse
       </tbody>
     </table>

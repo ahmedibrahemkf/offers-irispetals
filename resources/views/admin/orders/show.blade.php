@@ -33,11 +33,15 @@
       <p><b>العنوان:</b> {{ $order->delivery_address ?: '-' }}</p>
       <p><b>موعد التسليم:</b> {{ optional($order->delivery_date)->format('Y-m-d') ?: '-' }} @if($order->delivery_time_slot) - {{ $order->delivery_time_slot }} @endif</p>
       <div class="actions">
-        <a class="btn btn-soft" href="{{ route('admin.orders.edit', $order) }}">تعديل</a>
-        <form method="post" action="{{ route('admin.invoices.from-order', $order) }}">
-          @csrf
-          <button class="btn btn-primary" type="submit">إنشاء فاتورة</button>
-        </form>
+        @if($authUser?->canUpdateRecords())
+          <a class="btn btn-soft" href="{{ route('admin.orders.edit', $order) }}">تعديل</a>
+        @endif
+        @if($authUser?->canCreateRecords())
+          <form method="post" action="{{ route('admin.invoices.from-order', $order) }}">
+            @csrf
+            <button class="btn btn-primary" type="submit">إنشاء فاتورة</button>
+          </form>
+        @endif
       </div>
     </article>
 

@@ -29,6 +29,36 @@
     </div>
   </section>
 
+  <section class="card" style="margin-top:12px">
+    <h3>صلاحيات العمليات</h3>
+    <form method="post" class="grid grid-2" action="{{ route('admin.employees.permissions.update', $employee) }}">
+      @csrf
+      @method('put')
+
+      <div class="card" style="padding:10px">
+        <div class="actions">
+          <input type="hidden" name="can_create_records" value="0">
+          <label><input type="checkbox" name="can_create_records" value="1" {{ $employee->canCreateRecords() ? 'checked' : '' }}> إضافة</label>
+
+          <input type="hidden" name="can_update_records" value="0">
+          <label><input type="checkbox" name="can_update_records" value="1" {{ $employee->canUpdateRecords() ? 'checked' : '' }}> تعديل</label>
+
+          <input type="hidden" name="can_delete_records" value="0">
+          <label><input type="checkbox" name="can_delete_records" value="1" {{ $employee->canDeleteRecords() ? 'checked' : '' }}> حذف</label>
+        </div>
+      </div>
+
+      <div class="card" style="padding:10px">
+        <input type="hidden" name="is_active" value="0">
+        <label><input type="checkbox" name="is_active" value="1" {{ $employee->is_active ? 'checked' : '' }}> المستخدم نشط</label>
+      </div>
+
+      <div class="actions" style="grid-column:1 / -1">
+        <button class="btn btn-primary" type="submit">حفظ الصلاحيات</button>
+      </div>
+    </form>
+  </section>
+
   <section class="card table-wrap" style="margin-top:12px">
     <h3>الحركات المالية</h3>
     <table>
