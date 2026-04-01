@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,7 +23,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::creating(function (Model $model): void {
+        Event::listen('eloquent.creating: *', function (string $eventName, array $payload): void {
+            $model = $payload[0] ?? null;
+            if (! $model instanceof Model) {
+                return;
+            }
+
             $this->hydrateLegacyIdIfNeeded($model);
             $this->hydrateLegacyPayloadIfNeeded($model);
             $this->hydrateLegacySoftDeleteIfNeeded($model);
@@ -68,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $tableMetadata[$table] = [
-                'integer' => str_contains($columnType, 'int'),
+                'numeric' => (bool) preg_match('/\b(tinyint|smallint|mediumint|int|bigint|decimal|numeric|float|double|real)\b/', $columnType),
                 'character' => str_contains($columnType, 'char'),
                 'length' => $length,
                 'auto_increment' => str_contains($extra, 'auto_increment'),
@@ -81,13 +87,23 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        if ($meta['integer']) {
+        // Legacy schemas may have id columns without auto increment.
+        // Force non-incrementing for this insert so Eloquent does not call insertGetId().
+        if (method_exists($model, 'setIncrementing')) {
+            $model->setIncrementing(false);
+        }
+
+        if ($meta['numeric']) {
             $model->setAttribute('id', $this->nextNumericId($table));
 
             return;
         }
 
         if ($meta['character']) {
+            if (method_exists($model, 'setKeyType')) {
+                $model->setKeyType('string');
+            }
+
             $generatedId = (string) $this->nextCharacterNumericId($table);
             $maxLength = $meta['length'];
             if (is_int($maxLength) && $maxLength > 0 && strlen($generatedId) > $maxLength) {
