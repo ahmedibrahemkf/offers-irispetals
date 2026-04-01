@@ -72,6 +72,7 @@ class SettingsController extends BaseAdminController
         }
 
         Cache::forget('crm.settings.first');
+        Cache::forget('crm.settings.first.v2');
         SystemLogger::log((int) $this->user($request)->id, 'settings_updated', 'Updated system settings', 'Setting', (int) $setting->id, $request);
 
         return back()->with('status', 'تم حفظ الإعدادات');
@@ -140,4 +141,3 @@ class SettingsController extends BaseAdminController
         return back()->with('status', 'تمت إضافة محصل جديد');
     }
 }
-

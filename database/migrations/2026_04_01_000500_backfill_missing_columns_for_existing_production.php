@@ -9,6 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         $this->backfillUsers();
+        $this->backfillProductCategories();
+        $this->backfillColors();
+        $this->backfillShippingZones();
+        $this->backfillExpenseCategories();
+        $this->backfillCollectors();
         $this->backfillOrders();
         $this->backfillOrderItems();
         $this->backfillOrderStatusLogs();
@@ -87,6 +92,63 @@ return new class extends Migration
         $this->addColumnIfMissing('orders', 'cancelled_at', fn (Blueprint $table) => $table->dateTime('cancelled_at')->nullable());
         $this->addColumnIfMissing('orders', 'created_by', fn (Blueprint $table) => $table->unsignedBigInteger('created_by')->nullable());
         $this->addColumnIfMissing('orders', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
+    }
+
+    private function backfillProductCategories(): void
+    {
+        if (! Schema::hasTable('product_categories')) {
+            return;
+        }
+
+        $this->addColumnIfMissing('product_categories', 'name', fn (Blueprint $table) => $table->string('name', 120)->nullable());
+        $this->addColumnIfMissing('product_categories', 'notes', fn (Blueprint $table) => $table->text('notes')->nullable());
+        $this->addColumnIfMissing('product_categories', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
+    }
+
+    private function backfillColors(): void
+    {
+        if (! Schema::hasTable('colors')) {
+            return;
+        }
+
+        $this->addColumnIfMissing('colors', 'name', fn (Blueprint $table) => $table->string('name', 80)->nullable());
+        $this->addColumnIfMissing('colors', 'hex_code', fn (Blueprint $table) => $table->string('hex_code', 7)->default('#FFFFFF'));
+        $this->addColumnIfMissing('colors', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
+    }
+
+    private function backfillShippingZones(): void
+    {
+        if (! Schema::hasTable('shipping_zones')) {
+            return;
+        }
+
+        $this->addColumnIfMissing('shipping_zones', 'name', fn (Blueprint $table) => $table->string('name', 100)->nullable());
+        $this->addColumnIfMissing('shipping_zones', 'fee', fn (Blueprint $table) => $table->decimal('fee', 10, 2)->default(0));
+        $this->addColumnIfMissing('shipping_zones', 'eta_minutes', fn (Blueprint $table) => $table->integer('eta_minutes')->nullable());
+        $this->addColumnIfMissing('shipping_zones', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
+    }
+
+    private function backfillExpenseCategories(): void
+    {
+        if (! Schema::hasTable('expense_categories')) {
+            return;
+        }
+
+        $this->addColumnIfMissing('expense_categories', 'name', fn (Blueprint $table) => $table->string('name', 120)->nullable());
+        $this->addColumnIfMissing('expense_categories', 'notes', fn (Blueprint $table) => $table->text('notes')->nullable());
+        $this->addColumnIfMissing('expense_categories', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
+    }
+
+    private function backfillCollectors(): void
+    {
+        if (! Schema::hasTable('collectors')) {
+            return;
+        }
+
+        $this->addColumnIfMissing('collectors', 'name', fn (Blueprint $table) => $table->string('name', 120)->nullable());
+        $this->addColumnIfMissing('collectors', 'phone', fn (Blueprint $table) => $table->string('phone', 20)->nullable());
+        $this->addColumnIfMissing('collectors', 'is_active', fn (Blueprint $table) => $table->boolean('is_active')->default(true));
+        $this->addColumnIfMissing('collectors', 'deleted_at', fn (Blueprint $table) => $table->softDeletes());
     }
 
     private function backfillOrderItems(): void
@@ -340,4 +402,3 @@ return new class extends Migration
         }
     }
 };
-
