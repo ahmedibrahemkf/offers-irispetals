@@ -1,6 +1,6 @@
-# Iris Petals Offers
+# CRM PRD v2.0 - Laravel
 
-هذا المشروع يعمل على:
+هذا المشروع مبني لبيئة:
 
 - Ubuntu
 - Nginx
@@ -8,78 +8,67 @@
 - MySQL
 - Laravel
 
-لا يوجد أي ربط مع Supabase.
+## الروابط الرئيسية
 
-## صفحات المشروع
+- تسجيل الدخول: `/admin/login`
+- لوحة التحكم: `/admin/dashboard`
+- إدارة الطلبات: `/admin/orders`
+- الفواتير: `/admin/invoices`
+- طباعة الفاتورة: `/admin/invoices/{id}/print`
+- المنتجات: `/admin/products`
+- الموردون: `/admin/suppliers`
+- المشتريات: `/admin/purchases`
+- المصروفات: `/admin/expenses`
+- الموظفون: `/admin/employees`
+- صفحة موظف: `/admin/employees/{id}`
+- العملاء: `/admin/customers`
+- التقارير: `/admin/reports`
+- الإعدادات: `/admin/settings`
+- الإشعارات: `/admin/notifications`
+- سجل النشاط: `/admin/activity-logs`
+- صفحة الصنايعي: `/craftsman`
+- صفحة موظف الاستقبال: `/staff/orders`
+- صفحة الطلب العامة: `/order`
 
-- صفحة العميل: `/index.html`
-- لوحة الإدارة: `/admin.html`
-
-## نشر المشروع على السيرفر
-
-1. سحب الكود من GitHub داخل مسار المشروع.
-2. تثبيت الحزم:
+## تجهيز المشروع على السيرفر
 
 ```bash
+cd /var/www/offers-irispetals
+git pull origin main
 composer install --no-dev --optimize-autoloader
-```
-
-3. إنشاء ملف البيئة:
-
-```bash
 cp .env.example .env
-```
-
-4. تعديل بيانات قاعدة البيانات داخل `.env`:
-
-- `DB_CONNECTION=mysql`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_DATABASE`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-
-5. إنشاء المفتاح:
-
-```bash
 php artisan key:generate
-```
-
-6. تنفيذ الجداول:
-
-```bash
 php artisan migrate --force
-```
-
-7. ضبط الصلاحيات:
-
-```bash
+php artisan db:seed --force
+php artisan storage:link
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 sudo chown -R www-data:www-data storage bootstrap/cache public/uploads
 sudo chmod -R 775 storage bootstrap/cache public/uploads
 ```
 
-8. تحسين الأداء:
+## الحساب الأول
 
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-```
+يتم إنشاؤه من Seeder:
 
-## واجهات API الداخلية
+- المستخدم: `owner`
+- كلمة المرور: `Owner@123456`
 
-- `GET /api/settings`
-- `POST /api/settings`
-- `GET /api/orders`
-- `POST /api/orders`
-- `DELETE /api/orders/{id}`
-- `GET /api/expenses`
-- `POST /api/expenses`
-- `DELETE /api/expenses/{id}`
-- `POST /api/upload`
+غير كلمة المرور مباشرة بعد أول دخول.
 
-## ملاحظة
+## ملاحظات مهمة
 
-إن أردت إنشاء الجداول يدويًا بدل migrations:
+- دعم تقسيم التحصيل في الطلب على أكثر من محصل أصبح متاحًا من شاشة تعديل الطلب.
+- لا يمكن تسجيل تحصيل يتجاوز إجمالي الطلب.
+- التقارير المالية تعرض:
+  - إجمالي المبيعات
+  - المتحصل الفعلي
+  - المتبقي للتحصيل
+  - صافي الربح بناءً على التحصيل الفعلي
+- صفحة نسيان كلمة المرور تعمل بـ OTP تجريبي داخل النظام (ليست خدمة SMS فعلية).
 
-- استخدم الملف: `database/mysql-schema.sql`
+## API
+
+- `GET /api/dashboard/stats`
+

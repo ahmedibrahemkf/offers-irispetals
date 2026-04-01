@@ -2,28 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
-    protected $table = 'expenses';
+    use SoftDeletes;
 
-    protected $primaryKey = 'id';
-
-    public $incrementing = false;
-
-    protected $keyType = 'string';
-
-    public $timestamps = false;
-
-    protected $fillable = [
-        'id',
-        'created_at',
-        'payload',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
+        'expense_date' => 'date',
         'created_at' => 'datetime',
-        'payload' => 'array',
+        'updated_at' => 'datetime',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
+    }
 }
