@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,21 +55,41 @@ class AppServiceProvider extends ServiceProvider
 
                 $columnType = strtolower((string) ($column->COLUMN_TYPE ?? ''));
                 $extra = strtolower((string) ($column->EXTRA ?? ''));
+                $length = null;
+                if (preg_match('/\((\d+)\)/', $columnType, $matches) === 1) {
+                    $length = (int) $matches[1];
+                }
 
                 $tableMetadata[$table] = [
                     'integer' => str_contains($columnType, 'int'),
+                    'character' => str_contains($columnType, 'char'),
+                    'length' => $length,
                     'auto_increment' => str_contains($extra, 'auto_increment'),
                 ];
             }
 
             $meta = $tableMetadata[$table];
 
-            if (! $meta['integer'] || $meta['auto_increment']) {
+            if ($meta['auto_increment']) {
                 return;
             }
 
-            $maxId = (int) DB::table($table)->max('id');
-            $model->setAttribute('id', max(1, $maxId + 1));
+            if ($meta['integer']) {
+                $maxId = (int) DB::table($table)->max('id');
+                $model->setAttribute('id', max(1, $maxId + 1));
+
+                return;
+            }
+
+            if ($meta['character']) {
+                $generatedId = (string) Str::ulid();
+                $maxLength = $meta['length'];
+                if (is_int($maxLength) && $maxLength > 0 && strlen($generatedId) > $maxLength) {
+                    $generatedId = substr($generatedId, 0, $maxLength);
+                }
+
+                $model->setAttribute('id', $generatedId);
+            }
         });
     }
 }
