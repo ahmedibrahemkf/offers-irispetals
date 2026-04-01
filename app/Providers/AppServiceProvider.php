@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $this->hydrateLegacyIdIfNeeded($model);
+            $this->hydrateLegacyPayloadIfNeeded($model);
         });
     }
 
@@ -102,5 +103,68 @@ class AppServiceProvider extends ServiceProvider
 
             $model->setAttribute('id', $generatedId);
         }
+
+    }
+
+    private function hydrateLegacyPayloadIfNeeded(Model $model): void
+    {
+        $table = $model->getTable();
+        static $payloadMetaCache = [];
+
+        if (! array_key_exists($table, $payloadMetaCache)) {
+            $payloadMetaCache[$table] = null;
+
+            if (Schema::hasTable($table) && Schema::hasColumn($table, 'payload')) {
+                $column = DB::selectOne(
+                    'SELECT DATA_TYPE, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+                     FROM information_schema.COLUMNS
+                     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+                    [$table, 'payload']
+                );
+
+                if ($column) {
+                    $isNullable = strtoupper((string) $column->IS_NULLABLE) === 'YES';
+                    $hasDefault = $column->COLUMN_DEFAULT !== null;
+                    $payloadMetaCache[$table] = [
+                        'needs_value' => ! $isNullable && ! $hasDefault,
+                    ];
+                }
+            }
+        }
+
+        $meta = $payloadMetaCache[$table];
+        if (! is_array($meta) || ! ($meta['needs_value'] ?? false)) {
+            return;
+        }
+
+        $current = $model->getAttribute('payload');
+        if ($current !== null && $current !== '') {
+            return;
+        }
+
+        $model->setAttribute('payload', json_encode([
+            'source' => 'laravel-crm',
+            'model' => class_basename($model),
+            'created_at' => now()->toDateTimeString(),
+            'data' => $this->compactPayloadData($model->getAttributes()),
+        ], JSON_UNESCAPED_UNICODE));
+    }
+
+    private function compactPayloadData(array $attributes): array
+    {
+        $blocked = ['password', 'remember_token'];
+        $result = [];
+
+        foreach ($attributes as $key => $value) {
+            if (in_array((string) $key, $blocked, true)) {
+                continue;
+            }
+
+            if (is_scalar($value) || $value === null) {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
     }
 }
