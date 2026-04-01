@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
 
             $this->hydrateLegacyIdIfNeeded($model);
             $this->hydrateLegacyPayloadIfNeeded($model);
+            $this->hydrateLegacySoftDeleteIfNeeded($model);
         });
     }
 
@@ -166,5 +167,23 @@ class AppServiceProvider extends ServiceProvider
         }
 
         return $result;
+    }
+
+    private function hydrateLegacySoftDeleteIfNeeded(Model $model): void
+    {
+        $table = $model->getTable();
+        static $hasDeletedAtColumnCache = [];
+
+        if (! array_key_exists($table, $hasDeletedAtColumnCache)) {
+            $hasDeletedAtColumnCache[$table] = Schema::hasTable($table) && Schema::hasColumn($table, 'deleted_at');
+        }
+
+        if (! $hasDeletedAtColumnCache[$table]) {
+            return;
+        }
+
+        if ($model->getAttribute('deleted_at') === null || $model->getAttribute('deleted_at') === '') {
+            $model->setAttribute('deleted_at', null);
+        }
     }
 }
