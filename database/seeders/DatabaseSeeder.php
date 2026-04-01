@@ -16,18 +16,34 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::query()->updateOrCreate(
-            ['username' => 'owner'],
-            [
-                'name' => 'Owner',
-                'phone' => '01000000000',
-                'role' => 'owner',
-                'is_active' => true,
-                'base_salary' => 0,
-                'hire_date' => now()->toDateString(),
-                'password' => Hash::make('Owner@123456'),
-            ]
-        );
+        $ownerUsername = 'owner';
+        $ownerPhone = '01000000000';
+        $ownerEmail = 'owner@irispetals.local';
+
+        $owner = User::query()
+            ->where('username', $ownerUsername)
+            ->orWhere('phone', $ownerPhone)
+            ->orWhere('email', $ownerEmail)
+            ->first();
+
+        $ownerPayload = [
+            'name' => 'Owner',
+            'username' => $ownerUsername,
+            'phone' => $ownerPhone,
+            'email' => $ownerEmail,
+            'role' => 'owner',
+            'is_active' => true,
+            'base_salary' => 0,
+            'hire_date' => now()->toDateString(),
+            'password' => Hash::make('Owner@123456'),
+        ];
+
+        if ($owner) {
+            $owner->fill($ownerPayload);
+            $owner->save();
+        } else {
+            User::query()->create($ownerPayload);
+        }
 
         Setting::query()->firstOrCreate([], [
             'shop_name' => 'Iris Petals',
@@ -74,4 +90,3 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
-
