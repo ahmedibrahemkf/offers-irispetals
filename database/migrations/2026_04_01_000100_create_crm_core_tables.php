@@ -8,6 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Legacy deployments may already have the full CRM schema.
+        // If the core marker table exists, skip this baseline migration safely.
+        if (Schema::hasTable('settings')) {
+            return;
+        }
+
         Schema::create('settings', function (Blueprint $table): void {
             $table->id();
             $table->string('shop_name', 150)->default('Iris Petals');
