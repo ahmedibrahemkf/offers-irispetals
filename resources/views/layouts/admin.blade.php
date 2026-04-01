@@ -162,7 +162,13 @@
       <div class="ok">{{ session('status') }}</div>
     @endif
     @if($errors->any())
-      <div class="err">{{ $errors->first() }}</div>
+      <div class="err">
+        <ul style="margin:0;padding-inline-start:18px">
+          @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
     @endif
 
     @yield('content')
@@ -272,4 +278,3 @@
 </script>
 </body>
 </html>
-

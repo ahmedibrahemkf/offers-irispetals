@@ -10,6 +10,7 @@ use App\Models\OrderCollection;
 use App\Models\OrderItem;
 use App\Models\OrderStatusLog;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\ShippingZone;
 use App\Models\User;
 use App\Support\SystemLogger;
@@ -21,6 +22,29 @@ use Illuminate\View\View;
 
 class OrdersController extends BaseAdminController
 {
+    private const ORDER_FIELD_LABELS = [
+        'customer_name' => 'اسم العميل',
+        'customer_phone' => 'هاتف العميل',
+        'source' => 'المصدر',
+        'assigned_staff_id' => 'الموظف المسؤول',
+        'assigned_craftsman_id' => 'الصنايعي',
+        'delivery_address' => 'عنوان التوصيل',
+        'shipping_zone_id' => 'منطقة التوصيل',
+        'delivery_date' => 'تاريخ التوصيل',
+        'delivery_time_slot' => 'وقت التوصيل',
+        'delivery_fee' => 'رسوم التوصيل',
+        'occasion' => 'المناسبة',
+        'recipient_name' => 'اسم المستلم',
+        'recipient_phone' => 'هاتف المستلم',
+        'card_message' => 'رسالة الكارت',
+        'notes' => 'ملاحظات العميل',
+        'internal_notes' => 'ملاحظات داخلية',
+        'product_id' => 'المنتج',
+        'color_id' => 'اللون',
+        'quantity' => 'الكمية',
+        'unit_price' => 'سعر الوحدة',
+    ];
+
     public function index(Request $request): View
     {
         $query = Order::query()->with(['customer'])->orderByDesc('id');
@@ -51,64 +75,56 @@ class OrdersController extends BaseAdminController
 
     public function create(Request $request): View
     {
+        $requiredFields = $this->orderRequiredFields();
+
         return view('admin.orders.create', $this->sharedData($request) + [
             'products' => Product::query()->orderBy('name')->get(),
             'colors' => Color::query()->orderBy('name')->get(),
             'zones' => ShippingZone::query()->orderBy('name')->get(),
             'staff' => User::query()->whereIn('role', ['owner', 'manager', 'staff'])->where('is_active', true)->get(),
             'craftsmen' => User::query()->where('role', 'craftsman')->where('is_active', true)->get(),
+            'requiredFields' => $requiredFields,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'customer_name' => 'required|string|max:100',
-            'customer_phone' => 'nullable|string|max:20',
-            'source' => 'nullable|in:facebook,instagram,whatsapp,phone,walk_in,website,other',
-            'assigned_staff_id' => 'nullable|integer|exists:users,id',
-            'assigned_craftsman_id' => 'nullable|integer|exists:users,id',
-            'delivery_address' => 'nullable|string|max:2000',
-            'shipping_zone_id' => 'nullable|integer|exists:shipping_zones,id',
-            'delivery_date' => 'nullable|date',
-            'delivery_time_slot' => 'nullable|string|max:50',
-            'delivery_fee' => 'nullable|numeric|min:0',
-            'occasion' => 'nullable|string|max:100',
-            'recipient_name' => 'nullable|string|max:100',
-            'recipient_phone' => 'nullable|string|max:20',
-            'card_message' => 'nullable|string|max:3000',
-            'notes' => 'nullable|string|max:3000',
-            'internal_notes' => 'nullable|string|max:3000',
-            'product_id' => 'nullable|integer|exists:products,id',
-            'color_id' => 'nullable|integer|exists:colors,id',
-            'quantity' => 'nullable|integer|min:1|max:999',
-            'unit_price' => 'nullable|numeric|min:0',
-        ]);
+        $requiredFields = $this->orderRequiredFields();
+        $validated = $request->validate(
+            $this->orderStoreRules($requiredFields),
+            ['required' => 'حقل :attribute مطلوب'],
+            self::ORDER_FIELD_LABELS
+        );
 
         $user = $this->user($request);
 
         $order = DB::transaction(function () use ($validated, $user, $request): Order {
+            $customerName = trim((string) ($validated['customer_name'] ?? ''));
+            if ($customerName === '') {
+                $customerName = 'عميل بدون اسم';
+            }
+
             $customerPhone = trim((string) ($validated['customer_phone'] ?? ''));
 
             if ($customerPhone !== '') {
                 $customer = Customer::query()->firstOrCreate(
                     ['phone' => $customerPhone],
                     [
-                        'name' => (string) $validated['customer_name'],
+                        'name' => $customerName,
                         'phone' => $customerPhone,
                         'address' => (string) ($validated['delivery_address'] ?? ''),
                     ]
                 );
             } else {
                 $customer = Customer::query()->create([
-                    'name' => (string) $validated['customer_name'],
+                    'name' => $customerName,
                     'phone' => 'NP'.substr(str_replace('.', '', uniqid('', true)), -10),
                     'address' => (string) ($validated['delivery_address'] ?? ''),
                 ]);
             }
 
             if (blank($customer->name)) {
-                $customer->name = (string) $validated['customer_name'];
+                $customer->name = $customerName;
                 $customer->save();
             }
 
@@ -125,7 +141,7 @@ class OrdersController extends BaseAdminController
             $order = Order::query()->create([
                 'order_number' => $this->generateOrderNumber(),
                 'customer_id' => $customer->id,
-                'customer_name_snapshot' => (string) $validated['customer_name'],
+                'customer_name_snapshot' => $customerName,
                 'customer_phone_snapshot' => (string) ($validated['customer_phone'] ?? ''),
                 'source' => (string) ($validated['source'] ?? 'walk_in'),
                 'assigned_staff_id' => $validated['assigned_staff_id'] ?? null,
@@ -401,5 +417,61 @@ class OrdersController extends BaseAdminController
             ->where('is_active', true)
             ->pluck('id')
             ->each(static fn ($id) => SystemNotifier::notify((int) $id, $type, $title, $body, $link));
+    }
+
+    private function orderRequiredFields(): array
+    {
+        $value = Setting::query()->value('order_required_fields');
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                $value = $decoded;
+            }
+        }
+
+        if (! is_array($value)) {
+            $value = ['customer_name'];
+        }
+
+        $allowed = array_keys(self::ORDER_FIELD_LABELS);
+        $filtered = array_values(array_intersect($allowed, array_map('strval', $value)));
+
+        if (count($filtered) === 0) {
+            return ['customer_name'];
+        }
+
+        return $filtered;
+    }
+
+    private function orderStoreRules(array $requiredFields): array
+    {
+        return [
+            'customer_name' => $this->composeRule($requiredFields, 'customer_name', 'string|max:100'),
+            'customer_phone' => $this->composeRule($requiredFields, 'customer_phone', 'string|max:20'),
+            'source' => $this->composeRule($requiredFields, 'source', 'in:facebook,instagram,whatsapp,phone,walk_in,website,other'),
+            'assigned_staff_id' => $this->composeRule($requiredFields, 'assigned_staff_id', 'integer|exists:users,id'),
+            'assigned_craftsman_id' => $this->composeRule($requiredFields, 'assigned_craftsman_id', 'integer|exists:users,id'),
+            'delivery_address' => $this->composeRule($requiredFields, 'delivery_address', 'string|max:2000'),
+            'shipping_zone_id' => $this->composeRule($requiredFields, 'shipping_zone_id', 'integer|exists:shipping_zones,id'),
+            'delivery_date' => $this->composeRule($requiredFields, 'delivery_date', 'date'),
+            'delivery_time_slot' => $this->composeRule($requiredFields, 'delivery_time_slot', 'string|max:50'),
+            'delivery_fee' => $this->composeRule($requiredFields, 'delivery_fee', 'numeric|min:0'),
+            'occasion' => $this->composeRule($requiredFields, 'occasion', 'string|max:100'),
+            'recipient_name' => $this->composeRule($requiredFields, 'recipient_name', 'string|max:100'),
+            'recipient_phone' => $this->composeRule($requiredFields, 'recipient_phone', 'string|max:20'),
+            'card_message' => $this->composeRule($requiredFields, 'card_message', 'string|max:3000'),
+            'notes' => $this->composeRule($requiredFields, 'notes', 'string|max:3000'),
+            'internal_notes' => $this->composeRule($requiredFields, 'internal_notes', 'string|max:3000'),
+            'product_id' => $this->composeRule($requiredFields, 'product_id', 'integer|exists:products,id'),
+            'color_id' => $this->composeRule($requiredFields, 'color_id', 'integer|exists:colors,id'),
+            'quantity' => $this->composeRule($requiredFields, 'quantity', 'integer|min:1|max:999'),
+            'unit_price' => $this->composeRule($requiredFields, 'unit_price', 'numeric|min:0'),
+        ];
+    }
+
+    private function composeRule(array $requiredFields, string $field, string $tail): string
+    {
+        return (in_array($field, $requiredFields, true) ? 'required|' : 'nullable|').$tail;
     }
 }

@@ -12,4 +12,10 @@ class Setting extends Model
     protected $table = 'settings';
 
     protected $guarded = [];
+
+    protected $casts = [
+        'show_tax' => 'boolean',
+        'tax_rate' => 'decimal:2',
+        'order_required_fields' => 'array',
+    ];
 }

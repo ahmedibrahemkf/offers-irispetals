@@ -25,6 +25,7 @@ class SettingsController extends BaseAdminController
             'productCategories' => ProductCategory::query()->orderBy('name')->get(),
             'expenseCategories' => ExpenseCategory::query()->orderBy('name')->get(),
             'collectors' => Collector::query()->orderByDesc('is_active')->orderBy('name')->get(),
+            'orderFieldOptions' => $this->orderFieldOptions(),
         ]);
     }
 
@@ -46,6 +47,8 @@ class SettingsController extends BaseAdminController
             'currency' => 'nullable|string|max:10',
             'currency_symbol' => 'nullable|string|max:5',
             'primary_color' => 'nullable|string|max:7',
+            'order_required_fields' => 'nullable|array',
+            'order_required_fields.*' => 'string',
         ]);
 
         $setting = Setting::query()->first();
@@ -56,6 +59,7 @@ class SettingsController extends BaseAdminController
         $setting->fill([
             ...$validated,
             'show_tax' => (bool) ($validated['show_tax'] ?? false),
+            'order_required_fields' => $this->sanitizeOrderRequiredFields($validated['order_required_fields'] ?? []),
         ]);
         $setting->save();
 
@@ -164,5 +168,38 @@ class SettingsController extends BaseAdminController
         $collector->delete();
 
         return back()->with('status', 'تم حذف المحصل');
+    }
+
+    private function orderFieldOptions(): array
+    {
+        return [
+            'customer_name' => 'اسم العميل',
+            'customer_phone' => 'هاتف العميل',
+            'product_id' => 'المنتج',
+            'color_id' => 'اللون',
+            'quantity' => 'الكمية',
+            'unit_price' => 'سعر الوحدة',
+            'delivery_address' => 'عنوان التوصيل',
+            'shipping_zone_id' => 'منطقة التوصيل',
+            'delivery_date' => 'تاريخ التوصيل',
+            'delivery_time_slot' => 'وقت التوصيل',
+            'occasion' => 'المناسبة',
+            'recipient_name' => 'اسم المستلم',
+            'recipient_phone' => 'هاتف المستلم',
+            'notes' => 'ملاحظات العميل',
+            'internal_notes' => 'ملاحظات داخلية',
+        ];
+    }
+
+    private function sanitizeOrderRequiredFields(array $fields): array
+    {
+        $allowed = array_keys($this->orderFieldOptions());
+        $filtered = array_values(array_intersect($allowed, array_map('strval', $fields)));
+
+        if (count($filtered) === 0) {
+            return ['customer_name'];
+        }
+
+        return $filtered;
     }
 }

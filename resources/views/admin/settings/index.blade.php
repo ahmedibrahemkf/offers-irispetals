@@ -19,6 +19,24 @@
       <input class="input" type="file" name="invoice_logo" accept="image/*">
       <input class="input" name="tax_rate" type="number" step="0.01" min="0" max="100" value="{{ old('tax_rate', $setting?->tax_rate) }}" placeholder="نسبة الضريبة">
       <label><input type="checkbox" name="show_tax" value="1" @checked(old('show_tax', $setting?->show_tax))> إظهار الضريبة في الفاتورة</label>
+      @php
+        $selectedRequiredFields = old('order_required_fields', $setting?->order_required_fields ?? ['customer_name']);
+        if (! is_array($selectedRequiredFields)) {
+            $selectedRequiredFields = ['customer_name'];
+        }
+      @endphp
+      <div class="card" style="grid-column:1/-1;padding:12px">
+        <h4 style="margin:0 0 8px">الحقول الإلزامية في شاشة إضافة الطلب</h4>
+        <p class="muted" style="margin:0 0 8px">اختاري الحقول اللي لازم المستخدم يملأها قبل الحفظ.</p>
+        <div class="grid grid-3">
+          @foreach($orderFieldOptions as $fieldKey => $fieldLabel)
+            <label style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" name="order_required_fields[]" value="{{ $fieldKey }}" @checked(in_array($fieldKey, $selectedRequiredFields, true))>
+              <span>{{ $fieldLabel }}</span>
+            </label>
+          @endforeach
+        </div>
+      </div>
       <textarea name="address" placeholder="العنوان">{{ old('address', $setting?->address) }}</textarea>
       <textarea name="invoice_header_extra" placeholder="نص إضافي أعلى الفاتورة">{{ old('invoice_header_extra', $setting?->invoice_header_extra) }}</textarea>
       <textarea name="invoice_footer_text" placeholder="نص أسفل الفاتورة">{{ old('invoice_footer_text', $setting?->invoice_footer_text) }}</textarea>
