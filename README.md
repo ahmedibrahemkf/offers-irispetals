@@ -38,6 +38,22 @@ sudo chown -R www-data:www-data storage bootstrap/cache public/uploads
 sudo chmod -R 775 storage bootstrap/cache public/uploads
 ```
 
+## مسار ترقية قاعدة بيانات موجودة (Production Upgrade)
+
+هذا المشروع يدعم الآن الترقية على قاعدة بيانات قديمة بدون `migrate:fresh`.
+
+- لا يتم حذف أي بيانات.
+- المايجريشنات تضيف الجداول/الأعمدة الناقصة فقط.
+- لا يوجد اعتماد على صفحات static قديمة (`index.html` / `admin.html`).
+
+نفذ فقط بعد `git pull`:
+
+```bash
+php artisan optimize:clear
+php artisan migrate --force
+php artisan db:seed --force
+```
+
 ## تحقق سريع بعد النشر
 
 ```bash
@@ -69,4 +85,3 @@ curl -I https://offers.irispetals.com/admin/login
 - لا توجد أي تبعيات إنتاجية على:
   - `public/index.html`
   - `public/admin.html`
-

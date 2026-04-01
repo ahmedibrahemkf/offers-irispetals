@@ -14,33 +14,31 @@ return new class extends Migration
 
         Schema::table('users', function (Blueprint $table): void {
             if (! Schema::hasColumn('users', 'username')) {
-                $table->string('username', 60)->nullable()->unique()->after('name');
+                $table->string('username', 60)->nullable();
             }
 
             if (! Schema::hasColumn('users', 'phone')) {
-                $table->string('phone', 20)->nullable()->unique()->after('username');
+                $table->string('phone', 20)->nullable();
             }
 
             if (! Schema::hasColumn('users', 'role')) {
-                $table->enum('role', ['owner', 'manager', 'staff', 'craftsman', 'viewer'])
-                    ->default('staff')
-                    ->after('email_verified_at');
+                $table->string('role', 20)->default('staff');
             }
 
             if (! Schema::hasColumn('users', 'is_active')) {
-                $table->boolean('is_active')->default(true)->after('role');
+                $table->boolean('is_active')->default(true);
             }
 
             if (! Schema::hasColumn('users', 'base_salary')) {
-                $table->decimal('base_salary', 10, 2)->default(0)->after('is_active');
+                $table->decimal('base_salary', 10, 2)->default(0);
             }
 
             if (! Schema::hasColumn('users', 'hire_date')) {
-                $table->date('hire_date')->nullable()->after('base_salary');
+                $table->date('hire_date')->nullable();
             }
 
             if (! Schema::hasColumn('users', 'avatar_url')) {
-                $table->string('avatar_url')->nullable()->after('hire_date');
+                $table->string('avatar_url')->nullable();
             }
 
             if (! Schema::hasColumn('users', 'deleted_at')) {
@@ -54,4 +52,3 @@ return new class extends Migration
         // Intentionally left empty to avoid destructive rollback on production data.
     }
 };
-
