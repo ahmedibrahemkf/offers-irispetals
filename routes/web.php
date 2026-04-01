@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\CraftsmanController;
 use App\Http\Controllers\Admin\CustomersController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EntryController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\InvoicesController;
 use App\Http\Controllers\Admin\NotificationsController;
@@ -14,7 +15,6 @@ use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\PublicOrderController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicOrderController::class, 'show'])->name('home');
@@ -32,17 +32,7 @@ Route::prefix('admin')->group(function (): void {
 
     Route::middleware('admin.auth')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
-        Route::get('/', function (Request $request) {
-            $user = $request->attributes->get('authUser');
-            $target = match ($user?->role) {
-                'staff' => 'staff.orders',
-                'craftsman' => 'craftsman.tasks',
-                'viewer' => 'admin.reports.index',
-                default => 'admin.dashboard.home',
-            };
-
-            return redirect()->route($target);
-        })->name('admin.dashboard');
+        Route::get('/', [EntryController::class, 'adminRoot'])->name('admin.dashboard');
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:owner,manager')->name('admin.dashboard.home');
 
         Route::get('/orders', [OrdersController::class, 'index'])->middleware('role:owner,manager,staff')->name('admin.orders.index');
@@ -111,22 +101,12 @@ Route::middleware(['admin.auth', 'role:staff,owner,manager'])->group(function ()
 });
 
 Route::middleware('admin.auth')->group(function (): void {
-    Route::get('/dashboard', function () {
-        return redirect()->route('admin.dashboard');
-    })->name('legacy.dashboard');
-
-    Route::get('/orders', function (Request $request) {
-        $user = $request->attributes->get('authUser');
-        $target = $user?->role === 'staff' ? 'staff.orders' : 'admin.orders.index';
-
-        return redirect()->route($target);
-    })->name('legacy.orders');
+    Route::get('/dashboard', [EntryController::class, 'legacyDashboard'])->name('legacy.dashboard');
+    Route::get('/orders', [EntryController::class, 'legacyOrders'])->name('legacy.orders');
 });
 
 Route::middleware(['admin.auth', 'role:owner,manager,viewer'])->group(function (): void {
-    Route::get('/reports', function () {
-        return redirect()->route('admin.reports.index');
-    })->name('legacy.reports');
+    Route::get('/reports', [EntryController::class, 'legacyReports'])->name('legacy.reports');
 });
 
 Route::get('/order', [PublicOrderController::class, 'show'])->name('public.order.show');
